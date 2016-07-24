@@ -1,0 +1,149 @@
+Crud
+==========
+
+Conception
+==============
+
+Crud est un protocole définissant les échanges entre un client et un serveur 
+visant la réalisation d'une interaction de la base de données.
+
+Plusieurs actions sont possibles:
+
+- c: create: insertion des données dans la bdd
+- r: read: lecture des données de la bdd
+- u: update: mise à jour des données de la bdd
+- d: delete: suppression de données de la bdd
+
+
+Pour implémenter le crud, nous aurons également besoin d'actions supplémentaires:
+
+- afficher un formulaire vide
+- afficher un formulaire pré-rempli
+
+
+
+Les échanges
+----------------
+Voir schéma
+
+
+Soit C le payload envoyé du client au serveur, 
+et S la réponse renvoyée par le serveur.
+
+
+### Affichage du formulaire d'insertion (vide):
+
+C:
+- crudId: string encapsulant une action de type c
+- params: []
+S: 
+- form: string, le code html du formulaire
+- js: string, le code js pour la behaviour du formulaire, incluant la validation dynamique
+
+
+### Insertion des données:
+
+C:
+- crudId: string encapsulant une action de type c
+- params:
+----- values: array
+S: 
+
+(en cas d'erreur de validation)
+- _errors: 
+----- $controlName
+--------- array of translated error messages
+
+(en cas de succès)
+- insertedValues
+
+
+### Affichage du formulaire d'update (prérempli):
+
+C:
+- crudId: string encapsulant une action de type u
+- params:
+----- riv: (row identifying values), array de key => values
+
+S: 
+- form: string, le code html du formulaire
+- js: string, le code js pour la behaviour du formulaire, incluant la validation dynamique
+
+
+### Mise à jour des données:
+
+C:
+- crudId: string encapsulant une action de type u
+- params:
+----- values: array
+S: 
+
+(en cas d'erreur de validation)
+- _errors: 
+----- $controlName
+--------- array of translated error messages
+
+(en cas de succès)
+- insertedValues
+
+
+
+
+
+
+
+
+
+
+auto_increment
+-----------------
+
+Lorsqu'on affiche un formulaire vide, les champs auto-incrémentés sont omis.
+Lorsqu'on affiche un formulaire pré-rempli, les champs auto-incrémentés sont hidden et pré-remplis.
+
+
+crudId
+---------
+
+Un objet est chargé de convertir le crudId en 3 variables: actionType, table et salt.
+L'utilisation de cet objet nous permet de rendre le crudId complètement opaque, c'est une mesure de sécurité.
+
+
+
+    
+Validation
+--------------
+
+La validation est créée manuellement, et utilisée deux fois: une fois côté js lors de l'affichage
+du formulaire pour créer les règles de validation dynamiques, et une fois côté php lors
+de l'insertion/update des données, pour maintenir la cohérence des règles de validation
+et bloquer les tentatives de corruption des données au niveau du script ajax.
+    
+    
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

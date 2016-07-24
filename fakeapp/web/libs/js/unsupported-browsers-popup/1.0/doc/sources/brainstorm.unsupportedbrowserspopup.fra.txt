@@ -1,0 +1,224 @@
+Unsupported Browsers Popup: Brainstorm
+=========================================
+2014-10-17
+
+
+
+
+Installation
+----------------
+Il y a 3 fichiers à inclure: un pour l'objet, un pour le css, et un pour la langue.
+Copiez l'exemple ci-dessous pour afficher un popup de base.
+
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+
+		<script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+		<script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+		<link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+	<script>
+			var o = new UnsupportedBrowsersPopup();
+			o.displayPopup();
+	</script>
+
+
+	</body>
+	</html>
+
+
+
+Affichage du popup
+--------------------
+La première chose que l'on veut faire, c'est afficher le popup pour voir à quoi il ressemble.
+Pour cela, on va appeler la méthode displayPopup.
+
+
+	var o = new UnsupportedBrowsersPopup();
+	o.displayPopup();
+
+
+	o.displayPopup({
+        message: "strong",
+		overlayBgColor: "#333",
+		browsers: "latest",
+		showFooter: true,
+		lang: "eng"
+	});
+
+
+Voir la section displayPopup pour les explications sur les options de cette méthode.
+
+
+
+Quand lancer le popup ?
+---------------------------
+Maintenant que l'on sait à quoi le popup ressemble, la question la plus importante est: quand est-ce que l'on va l'afficher.
+
+Il y a principalement 2 approches:
+
+- approche basée sur une feature
+- approche basée sur un navigateur
+
+
+Nous indiquons notre choix dans les options du constructeur, par exemple:
+
+
+	var o = new UnsupportedBrowsersPopup({
+		ifTest: function(){
+			return true;
+		}
+	});
+
+
+Les options disponibles sont:
+
+- ifTest: bool callback()
+
+
+La propriété ifTest permet de tester ce que l'on veut: feature detection, ou browser detection, ou autre...
+Pour les browsers detection, je conseille d'utiliser bowser (https://github.com/ded/bowser),
+car il ne pèse que 3Ko en minified, et est très pratique à utiliser.
+Par exemple si on veut faire un test qui lance le popup si le browser est ie<=8, on peut charger
+bowser, puis faire le test suivant:
+
+
+	var o = new UnsupportedBrowsersPopup({
+		ifTest: function(){
+			if (bowser.msie && bowser.version <= 8) {
+			  	return true;
+			}
+			return false;
+		}
+	});
+
+
+
+
+
+
+Gestion de la persistence du popup
+----------------------------------
+Maintenant qu'on a déterminé l'apparence du popup, et quand le lancer, il nous reste encore à définir si le popup va rester longtemps ou pas:
+est-ce qu'il n'apparaît qu'une fois pour toutes, ou bien est-ce qu'il apparaît à chaque page, ou encore, est-ce que l'utilisateur
+peut fermer le popup ?
+
+Toutes ces possibilités sont à l'aide des 3 options suivantes:
+
+- remember: bool(true)
+- rememberDuration: null|int (null)
+- showFooter: bool(true)  # option de la méthode displayPopup
+
+Si l'option remember vaut true, le popup ne s'affichera qu'une fois (gestion par les cookies en interne).
+Si l'option remember vaut false, le popup s'affichera tant que le test ifTest renverra true.
+On peut donc utiliser cette option pour énerver l'utilisateur si on est sadique (nhiahhaaa).
+Encore plus sadique, on peut également créer un mur en mettant les 2 options remember et
+showFooter (voir ci-dessous) à false: le popup s'affichera à chaque fois et l'utilisateur
+ne pourra pas le fermer (mohahahaaa).
+
+
+L'option rememberDuration permet de définir la durée du cookie.
+Si null, le cookie expire lorsque le navigateur est fermé.
+Si c'est un int, il représente le nombre de jours pendant lequel le cookie est valide.
+
+
+L'option showFooter permet d'afficher ou pas le footer qui contient le bouton permettant de fermer le dialogue.
+
+
+
+
+
+
+
+
+Les types de message natifs
+------------------------
+L'identifiant des messages représente la force de la recommendation.
+
+- strong:
+  	Oops!
+  	Ce site utilise des fonctionalités essentielles qui ne sont
+  	pas comprises par votre navigateur actuel.
+  	Veuillez mettre à jour votre navigateur, ou utiliser l'un des navigateurs
+  	suivants, puis rechargez cette page.
+
+  	Liste des navigateurs...
+
+
+- medium:
+	Ce site utilise des fonctionalités avancées qui ne sont pas comprises par
+	votre navigateur.
+	Nous vous conseillons d'utiliser l'un des navigateurs suivants avant de continuer:
+
+  	Liste des navigateurs...
+
+
+- weak:
+  	Ce site est optimisé pour la liste des navigateurs suivants:
+
+  	Liste des navigateurs...
+
+
+
+La liste des navigateurs
+---------------------------
+Mon objet propose par défaut une liste nommée latest, qui est composée de:
+
+- ie
+- chrome
+- safari
+- firefox
+- opera
+
+On peut utiliser une autre liste, via la propriété browsers des options de la méthode
+displayPopup. Chaque élément de la liste est composé de 3 propriétés:
+
+- text
+- icon (la classe css représentant une icône située dans le dossier img)
+- link
+
+La liste latest est donc en fait un raccourci vers l'objet suivant:
+
+- 0:
+----- text: ie
+----- link: http://windows.microsoft.com/en-us/internet-explorer/ie-11-worldwide-languages
+----- icon: ie
+- 1:
+----- text: chrome
+----- link: http://www.google.com/chrome/index.html
+----- icon: chrome
+- 2:
+----- text: safari
+----- link: http://support.apple.com/downloads/#safari
+----- icon: safari
+- 3:
+----- text: firefox
+----- link: https://www.mozilla.org/en-US/firefox/all/
+----- icon: firefox
+- 4:
+----- text: opera
+----- link: http://www.opera.com/computer
+----- icon: opera
+
+
+Note: toutes les icônes utilisées proviennent du projet:
+https://github.com/alrra/browser-logos
+
+On peut augmenter la liste comme on le souhaite.
+Pour cela, il faudra juste penser à editer le fichier css en conséquence (unsopprtedbrowserspopup.css).
+
+
+On peut également créer les listes à l'avance, et l'utiliser à l'aide d'un identifiant,
+comme c'est le cas pour la liste latest.
+Comme les liens de la liste peuvent changer d'une langue à l'autre, cela se fait depuis le fichier locale
+correspondant à la langue souhaitée.
+
+

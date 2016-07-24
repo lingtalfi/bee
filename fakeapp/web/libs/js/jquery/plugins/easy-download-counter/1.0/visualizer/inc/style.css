@@ -1,0 +1,17 @@
+table.maintable {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.maintable tr,
+table.maintable th,
+table.maintable td {
+    border: 1px solid black;
+    padding:5px;
+}
+
+#chartscontainer{}
+#chartscontainer .graph{
+    float:left;
+
+}

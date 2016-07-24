@@ -1,0 +1,151 @@
+Tutoriel présentation
+=======================
+2014-11-20
+
+
+(v): exemple vidéo
+(s): montrer avec un geste de la souris
+(t): titre dans la vidéo
+
+
+
+Bonjour, dans cette vidéo je voudrais vous faire une brève présentation
+du script macGuiMenu.
+
+
+Les types de menu (t)
+-----------------------
+
+MacGuiMenu peut être utilisé pour créer trois types de menu:
+
+- un menu horizontal, que l'on peut utiliser pour grouper les principales
+    fonctionalités d'une application (v)
+
+- un menu contextuel, qui se déclenche au clic droit, et qui apporte
+    des fonctionalités supplémentaires, en fonction de la zone cliquée (v)
+
+- un menu clic gauche qui apparaît lorsqu'on fait un clic gauche sur un bouton.
+      On peut choisir la position du menu par rapport au bouton.
+
+
+Il est possible d'associer un menu clic gauche et un menu clic droit à un même élément.
+
+
+
+
+
+
+Nested panels (t)
+----------------
+
+MacGuiMenu, comme son nom le laisse deviner, est inspiré de l'os Mac.
+Visuellement, nous avons le même genre de menus, dont les éléments prennent
+une couleur de fond bleu au survol de la souris (v).
+
+Hormis l'aspect visuel, le comportement des menus a également été repris
+de Mac Os.
+Ainsi, un panel contient des items (s), chaque item peut être le parent d'un
+autre panel, et ainsi de suite.
+
+
+Standard item (t)
+----------------
+
+La plupart des items sur Mac ont la même structure, que nous avons reprise
+et que nous appelons standardItem dans macGuiMenu.
+Un standardItem peut être composé des éléments suivants:
+
+- une checkmark (s)
+- un icône (s)
+- un label (s)
+- 3 petits points situés après le label si l'item doit ouvrir un dialogue (s)
+- une flèche noire indiquant si l'item est un parent ou pas
+- un raccourci clavier
+
+
+L'api de macGuiMenu (t)
+------------------------
+
+L'api de macGuiMenu est conçue de telle manière qu'il est possible d'interagir
+avec les panels existant dynamiquement.
+On peut par exemple:
+
+- modifier l'icône (v)
+- modifier la checkmark (v)
+- modifier le label (v)
+- associer un panel à un item (v)
+- dissocier un panel d'un item (v)
+- modifier le shortcut d'un item(v)
+- ajouter un item (v)
+- supprimer un item (v)
+- ajouter un topmenu item (v)
+- créer et ouvrir un panel dynamiquement (v)
+
+
+
+Les raccourcis clavier (t)
+----------------------------
+
+Etant un grand utilisateur de raccourcis clavier moi-même,
+ce fût un grand plaisir d'implémenter les shortcuts dans macGuiMenu.
+Lorsque l'on créé un panel avec l'api de macGuiMenu, les shortcuts sont
+directement utilisables.
+Dans cette démo, l'action effectuée lorsqu'un item est exécuté affiche simplement
+l'uid, ou identifiant unique, de l'item cliqué, à droite de la pomme (s).
+Je peux exécuter la même action en utilisant le shortcut correspondant.
+Par exemple cmd+c, ou cmd+v (t).
+
+Avec l'api macGuiMenu, on peut affecter un ensemble de shortcuts à une zone donnée.
+Cela permet de réserver une zone dans laquelle les shortcuts de l'application seront
+utilisés, tout en ayant la possibilité d'utiliser les raccourcis clavier du
+navigateur lorsqu'on est en dehors de la zone (t).
+
+De la même manière, un menu contextuel créé par macGuiMenu est déclenché par
+un clic droit sur une zone délimitée. En dehors de cette zone, c'est le menu
+contextuel du navigateur qui est lancé (t).
+
+
+
+Outro
+--------
+Voilà, cette vidéo de présentation est maintenant terminée.
+Pour les développeurs intéressés qui souhaitent utiliser ce menu,
+je vous invite à suivre les tutoriels sur cette même page.
+
+Un mot d'avertissement cependant, je n'ai utilisé que firefox pour développer
+macGuiMenu, et il est donc très possible que macGuiMenu ne fonctionne
+pas de la même manière sur chrome et les autres navigateurs.
+
+Une deuxième chose: macGuiMenu utilise la librairie jquery.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

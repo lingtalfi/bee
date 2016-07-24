@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Beard Test</title>
+    <link rel="stylesheet" href="/public/js/jquery/qunit/1.12/qunit-1.12.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="/public/js/bee/lib/0.1/bee-0.1.js"></script>
+<script src="/public/js/jquery/qunit/1.12/qunit-1.12.0.js"></script>
+<script>
+
+
+
+
+
+
+
+
+    test("arrayReplace1", function () {
+        var aoArray0 = {
+            id: "myId0"
+        };
+        var aoArray1 = {
+            class: "class1",
+            any: "doo"
+        };
+        var aoArray2 = {
+            id: "welcome",
+            class: "class2"
+        };
+
+        var aoArray3 = {
+            class: "class2 class3 class1"
+        };
+
+        var aoArray4 = {
+            any: "doo",
+            style: "color: red"
+        };
+
+        var aoArray5 = {
+            style: "width: 60px; color: blue; background: red;"
+        };
+
+//
+        var res = Bee.arrayMergeCss(aoArray1, aoArray2);
+        deepEqual(res, {
+            class: "class1 class2",
+            any: "doo",
+            id: "welcome"
+        }, "// testing basic class merging");
+
+
+        var res = Bee.arrayMergeCss(aoArray0, aoArray2);
+        deepEqual(res, {
+            id: "welcome",
+            class: "class2"
+        }, "// testing that default properties of array2 override those of array0");
+
+
+        var res = Bee.arrayMergeCss(aoArray0, aoArray2, false);
+        deepEqual(res, {
+            id: "myId0",
+            class: "class2"
+        }, "// testing that with replaceFlag off, default properties of array2 DO NOT override those of array0");
+
+
+        var res = Bee.arrayMergeCss(aoArray2, aoArray3);
+        deepEqual(res, {
+            id: "welcome",
+            class: "class2 class3 class1"
+        }, "// duplicated class are handled");
+
+
+        var res = Bee.arrayMergeCss(aoArray4, aoArray5);
+        deepEqual(res, {
+            any: "doo",
+            style: "color: blue; width: 60px; background: red"
+        }, "// testing default style merging: array5 declarations replace those of array4");
+
+
+    });
+
+
+</script>
+</body>
+</html>

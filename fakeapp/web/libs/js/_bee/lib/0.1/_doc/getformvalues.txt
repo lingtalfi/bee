@@ -1,0 +1,33 @@
+Get form values:
+------------------
+
+Returns values of a form, represented as an array of key/value pairs.
+
+Checkboxes, when not checked, are part of the array with a value of false.
+
+
+
+Vocabulary:
+------------
+- <scalar value>: bool, null, int, string, float
+
+
+
+
+Algorithm:
+------------
+
+
+Flat mode: no array
+
+- process all element which has the name attribute defined,
+        and store its values in an array.
+
+        For checkboxes:
+            if the value attribute is not defined:
+                    a boolean value will be returned.
+            If the value attribute is defined:
+                    the value will be used if checked,
+                    null will be used if not checked
+
+

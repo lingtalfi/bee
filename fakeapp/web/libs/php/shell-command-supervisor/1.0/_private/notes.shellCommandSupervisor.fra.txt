@@ -1,0 +1,32 @@
+Mémo automatisation d'un site
+=================================
+2014-11-17
+
+
+
+
+
+Pour automatiser un site:
+
+
+
+
+
+- Quels sont les liens symboliques ?
+----- ls -lR . | grep ^l
+
+
+
+- Quels sont les entrées (fichiers et/ou dossiers) appartenant aux autres users ?
+(ownerstamp)
+----- find . ! -user ling -prune -printf "%u:%g:%p\n"
+
+
+- Quels sont les entrées (fichiers et/ou dossiers) ayant des permissions spéciales ?
+(permstamp)
+----- find . \! -perm 644 -type f -o \! -perm 755 -type d -printf "%m:%p\n"
+
+
+
+
+

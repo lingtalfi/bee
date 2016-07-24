@@ -1,0 +1,15 @@
+Pea
+======
+2014-09-14
+
+
+Un subset de la librairie phpjs.
+
+Pea est principalement utile lorsque l'on fait un port d'un script php vers un script js,
+cela peut faire gagner du temps au niveau de la conversion.
+
+
+En règle générale, j'aime bien utiliser pea car je suis habitué à développer en php.
+Ce luxe coûte le poids du fichier.
+Au moment où j'écris ces lignes, 34Ko (11Ko minifié).
+

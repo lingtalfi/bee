@@ -1,0 +1,251 @@
+Easy download counter - clic tracker
+=========================
+2014-10-19
+
+
+
+
+
+
+Présentation
+----------------
+
+Easy Download counter - clic tracker (edc) est un plugin jquery
+qui mémorise le nombre de clicks sur des liens (download, ou simples liens).
+Il peut également afficher le nombre de downloads pour chaque lien.
+Enfin, il y est livré avec une interface de visualisation des statistiques.
+
+La prise en main est très rapide, et intuitive pour les utilisateurs expérimentés.
+
+La mémorisation du compteur se fait par le système de fichiers, de cette manière,
+le système est opérationnel immédiatement (on n'a pas besoin de mettre en place une base de données par exemple);
+on doit juste vérifier que le dossier des stats a les droits d'écriture, voir plus bas.
+
+
+Pour chaque lien pour lequel on souhaite collecter des statistiques, on assigne un identifiant;
+les données sont alors collectées, et organisées en années, mois et jour.
+
+
+
+Installation
+--------------
+La première et seule chose à faire est de donner les droits d'écriture sur le
+dossier stats: easy-download-counter/1.0/service/stats.
+C'est dans ce dossier que le plugin va collecter toutes les stats, sous forme de simples fichiers texte.
+Si vous ne faîtes pas cela, le plugin ne pourra pas mémoriser le nombre de clics et vous aurez une
+erreur lors du clic sur un lien.
+
+Par exemple sur unix, si votre site se trouve dans le dossier /mysite/www, vous pouvez taper la commande suivante
+depuis un terminal:
+
+
+	sudo chmod -R 777 /mysite/www/easy-download-counter/1.0/service/stats
+
+
+Voilà pour l'installation ;)
+Vous pouvez maintenant tester le plugin jquery.
+
+
+
+Demo
+------
+(vous devez avoir lu la section Installation avant)
+Ouvrez le fichier easy-download-counter/1.0/demo.php depuis un serveur web.
+
+Vous verrez 2 liens d'exemple avec compteur,
+plus un lien ouvrant l'interface de visualisation des statistiques dans un autre onglet.
+Pour montrer à quoi ressemble l'interface de visualisation en production, j'ai ajouté
+des données factices de base, cela permet de visualiser des graphes intéressants.
+Lorsque vous passez en production, supprimez simplement le contenu du dossier stats (easy-download-counter/1.0/service/stats)
+afin de supprimer toutes ces données factices.
+Si vous supprimez par mégarde le dossier stats lui-même, pensez juste à remettre les droits d'écriture dessus.
+
+
+
+
+Quickstart
+--------------
+(vous devez avoir lu la section Installation avant)
+Collez le code suivant dans un fichier html et ouvrez le dans un navigateur (ou bien adaptez le pour votre application):
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="easy-download-counter.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Chant du soleil"</a>
+	<br />
+	<a data-edc-id="score-nora" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Nora"</a>
+
+
+	<script>
+		(function ($) {
+
+
+			$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+			$(document).ready(function () {
+				$('.countdownload').easyDownloadCounter();
+			});
+
+
+		})(jQuery);
+
+	</script>
+
+
+	</body>
+	</html>
+
+
+
+Vous verrez alors deux liens permettant de télécharger des partitions.
+Au niveau de la partie javascript, la ligne suivante est importante:
+
+	$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+
+Car elle permet d'indiquer au plugin jquery où se trouve le service qui met à jour les statistiques.
+Vous devrez probablement modifier cette valeur pour l'adapter à votre application.
+
+
+On peut également ajouter des compteurs indiquant le nombre de downloads, voyez l'exemple ci-dessous:
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="easy-download-counter.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Chant du soleil"</a>
+	Downloads: <span data-edc-counter="score-chantdusoleil"></span>
+	<br />
+
+	<a data-edc-id="score-nora" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Nora"</a>
+	Downloads: <span data-edc-counter="score-nora"></span>
+
+	<script>
+		(function ($) {
+
+
+			$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+			$(document).ready(function () {
+				$('.countdownload').easyDownloadCounter();
+			});
+
+
+		})(jQuery);
+
+	</script>
+
+
+	</body>
+	</html>
+
+
+Il faut juste bien faire attention à ce que la valeur de data-edc-counter (du compteur)
+soit la même que la valeur de data-edc-id (du lien).
+
+
+
+
+
+Visualisation des statistiques
+------------------------------
+Pour visualiser les statistiques, ouvrez la page visualizer/visualizer.php.
+Vous tomberez sur une interface graphique très simple vous permettant d'avoir un aperçu global
+du nombre de downloads pour chaque identifiant que vous aurez défini.
+
+
+
+
+Modifier les valeurs du compteur manuellement
+---------------------------------------------
+Aha, on veut tricher hein ?
+Ok, toutes les stats sont situées dans le dossier service/stats.
+
+Ensuite, tout dépend de ce que vous voulez modifier.
+Les données du compteur et les données collectées par les clics ne sont pas situées au même endroit,
+pour des raisons techniques d'optimisation des performances.
+
+Si vous voulez modifier les données affichées par les compteurs sur vos pages html,
+et si abc est votre identifiant, modifiez la valeur du fichier service/stats/abc.txt
+
+Si vous voulez modifier les données affichées par l'interface de visualisation des statistiques,
+et que abc est votre identifiant, modifiez les valeurs situées dans le dossier service/stats/abc.
+
+
+Et s'il vous prend l'envie de vouloir réinitialiser toutes les stats, vous pouvez simplement supprimer
+le contenu du dossier stats (pensez à faire une copie avant si vous voulez, car autrement l'action est irréversible),
+il sera recréé automatiquement par le système.
+
+
+
+
+Fonctionnement détaillé du plugin jQuery
+----------------
+
+Lorsque le plugin s'applique à un lien, il va détecter la pression du bouton de souris sur ce lien.
+
+Le lien doit avoir un attribut spécial data-edc-id qui représente l'identifiant du lien.
+Cet identifiant vous permet de savoir quel lien a été cliqué.
+
+Cet identifiant est utilisé par le plugin qui met à jour le nombre de clics pour cet identifiant dans le système
+de fichiers (le dossier stats).
+
+Il est également possible de créer un compteur.
+Un compteur est un élément html qui possède l'attribut data-edc-counter, et dont la valeur de cet attribut
+est identique à la valeur de l'attribut data-edc-id du lien auquel le compteur est lié.
+
+Par exemple, le code suivant créé un lien et un compteur qui sont liés, et l'identifiant est score-chantdusoleil
+
+	<a data-edc-id="score-chantdusoleil" href="/link/to/chantdusoleil.pdf">Télécharger la partition</a>
+	<br>
+	Downloaded: <span data-edc-counter="score-chantdusoleil"></span>
+
+
+La valeur du compteur est mise à jour automatiquement au démarrage de la page, et également lorsque l'utilisateur
+clique sur le lien de download.
+
+Le type de lien utilisé n'a pas d'importance, on peut par exemple utiliser un lien normal si on veut,
+par exemple pour tracker le nombre de clicks sur ce lien, comme dans l'exemple ci-dessous:
+
+	<a data-edc-id="website-partner-example" href="http://www.example.com">Aller sur le site example</a>
+
+On aurait également pu mettre un compteur, mais dans cet exemple, il s'agit d'un tracker et l'utilisateur
+n'est pas censé connaître ce nombre.
+
+
+
+
+
+Le mot de la fin
+------------------
+Bon voilà, j'espère que ce plugin vous fera gagner pas mal de temps.
+N'hésitez pas à poser vos questions, si ce n'est pas clair, je ferais ce que je peux pour y répondre.
+
+
+Amusez-vous bien!
+
+
+
+
+
+
+
+
+
+
+
+

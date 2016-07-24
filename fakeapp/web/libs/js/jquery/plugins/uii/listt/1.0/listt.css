@@ -1,0 +1,54 @@
+.listt, .listt ul {
+    background: #ddd;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+}
+
+.listt .listt-group {
+    padding: 0;
+    margin: 0;
+}
+
+.listt .title {
+    font-weight: bold;
+}
+
+.listt .listt-item {
+    background: #fff;
+    color: #333;
+    padding: 0;
+    margin: 0;
+
+    /** Prevent text selection **/
+    -webkit-user-select: none; /* Chrome all / Safari all */
+    -moz-user-select: none; /* Firefox all */
+    -ms-user-select: none; /* IE 10+ */
+
+    /* No support for these yet, use at own risk */
+    -o-user-select: none;
+    user-select: none;
+}
+
+.listt .listt-item.selected {
+    background: #4275b2;
+    color: white;
+}
+
+.listt .listt-item.disabled,
+.listt .listt-item.selected.disabled {
+    background: #ffd347;
+    color: #333;
+    opacity: 0.3
+}
+
+.listt .listt-item.hover {
+    background: #333;
+    color: white;
+}
+
+.listt .listt-item.hover.selected {
+    background: #3e5c7a;
+    color: white;
+}

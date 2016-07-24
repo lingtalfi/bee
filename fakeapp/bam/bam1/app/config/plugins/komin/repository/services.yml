@@ -1,0 +1,12 @@
+komin:
+    repository:
+        server:
+            _class: WebModule\Komin\Repository\Server\Ascp\RepositoryServer
+            _args: 
+                options: 
+                    handlers:
+                        plugin: 
+                            _class: WebModule\Komin\Repository\RepositoryHandler\FileRepositoryHandler
+                            _args:
+                                rootDir: §komin.repository.server.rootDir§/plugin
+            

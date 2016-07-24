@@ -1,0 +1,366 @@
+Unsupported Browsers Popup: Manuel d'utilisation
+=========================================
+2014-10-18
+
+
+
+Introduction
+----------------
+
+Sometimes, we want to display a popup to entice the user to change her browser.
+
+
+Unsupported Browsers Popup (ubp) displays a popup explaining that the user's browser is not optimized
+for the current website, and providing links to the download pages of the relevant browsers.
+
+
+
+With Ubp, we can define:
+
+- when should the popup be triggered
+- the message to display
+- the relevant browsers list
+
+
+Ubp handles multi languages and ships with the following languages already:
+
+- english    (me)
+- french	 (me)
+- ...your version here    (your name)
+
+
+In order to be cross-browser compatible, Ubp is written in pure javascript.
+Ubp optionally incorporates the <a href="https://github.com/ded/bowser" target="_blank">bowser.js</a> library,
+which allows to detect the browser easily.
+
+See the examples below.
+
+
+
+Quickstart
+-------------
+
+Example 1: drop support for ie8-, it uses the external library bowser.js for the browser detection.
+
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+        <script src="/lib/js/unsupported-browsers-popup/1.0/bowser.min.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+
+        // drop support for ie8-
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function () {
+                return (true === bowser.msie && bowser.version <= 8);
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+Example 2: triggers the popup if the flexbox css module isn't available to the current browser. It uses
+			the modernizr external library in order to detect the presence of flexbox module.
+
+
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+
+        // shows the popup only if flexbox is not available to the current browser
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function () {
+                return (false === Modernizr.flexbox);
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+
+Example 3: playing with options
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function(){
+                return true;
+            },
+            remember: false, // default=true
+            rememberDuration: null,
+            displayOptions: {
+                message: ":strong",
+                overlayBgColor: "#333",
+				width: 400,
+				height: 300,
+                browsers: "latest",
+                showFooter: true,
+                lang: "eng"
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+
+Options
+--------------
+Default options are the following:
+
+
+- ifTest: bool function() | null (null)
+- remember: bool (true)
+- rememberDuration: null | int (null)
+- displayOptions:
+    - message: string (":strong")
+    - overlayBgColor: string ("#333")
+    - browsers: string | array ("latest")
+    - showFooter: bool (true)
+    - lang: string ("eng")
+
+
+
+
+### ifTest
+
+bool    function() | null (null)
+
+ifTest is the most important option: it determines whether or not the popup should be triggered.
+If the function returns true, the popup SHOULD appear, otherwise it doesn't appear.
+Notice how I emphasized the word SHOULD, that's because even if the popup SHOULD appear,
+it may actually not appear at the end.
+That depends on the remember option, see remember option.
+
+
+### remember
+
+bool (true)
+
+If the ifTest fails (returns false), the popup will appear for the first time.
+But what about the next time the user refreshes the page?
+
+By default, remember is true, so a "remember" cookie is created and forbids the displaying of the popup (as long as
+remember is true).
+
+We can set remember to false to temporarily test the displaying of the popup, or to deliberately spam the user.
+For sadist people, we can even hide the button that closes the popup, so that the user is forced to download
+a compatible browser (nhiahahaaa), see the displayOptions.showFooter option.
+
+The cookie validity duration is defined by the rememberDuration option.
+
+
+### rememberDuration
+
+null | int (null)
+
+Defines the "remember" cookie validity duration (see remember option).
+If the value is null, the cookie expires when the browser is closed.
+If it's an int, it represents a number of days.
+
+
+### displayOptions.message
+
+string (":strong")
+
+Defines the main popup message.
+There are two ways to write a message:
+
+- write the message directly
+- use a message identifier (default technique)
+
+Write the message directly comes handy if your website only uses one language.
+If the website handles multiple languages, it makes more sense to use a message identifier.
+When we use a message identifier, the corresponding message depends on the lang (see displayOptions.lang option).
+
+Ubp has 3 built-in message identifiers:
+
+- :strong (default)
+- :medium
+- :weak
+
+We can create new message identifiers by opening the locale files (in the locale folder), and adding the new identifiers
+under the messages property.
+
+The value of the displayOptions.message option is recognized as a message identifier only when it's prefixed with the column (:) symbol.
+If this is not the case, the message is displayed as is.
+
+
+
+### displayOptions.overlayBgColor
+
+string ("#333")
+
+The backround color of the overlay behind the popup.
+The overlay is stylized with an opacity css rule with value 0.5.
+We can change that in the css file (.unsupportedbrowserspopup-overlay rule).
+
+
+
+### displayOptions.browsers
+
+string | array ("latest")
+
+The browsers list to recommend to the user.
+Each item of the list has 3 properties:
+
+- text, the text to display (the name of the browser)
+- icon, a css class representing the browser icon
+- link, the link to the download page of the browser
+
+
+We can either write the list directly, or use a list identifier.
+The main difference is that with a list identifier, the list depends on the lang (displayOptions.lang option).
+
+If you have a multi language website, you probably want to use a list identifier.
+To create a new list identifier, open the local files (in the locale folder),
+then add your list under the browsers property.
+
+
+By default, there is already one list referenced as "latest", and that's the default list used by ubp.
+
+To create a list directly, we use a javascript pure array.
+For instance, the "latest" list looks like this (with lang=eng):
+
+
+- 0:
+    - text: ie
+    - link: http://windows.microsoft.com/en-us/internet-explorer/ie-11-worldwide-languages
+    - icon: ie
+- 1:
+    - text: chrome
+    - link: http://www.google.com/chrome/index.html
+    - icon: chrome
+- 2:
+    - text: safari
+    - link: http://support.apple.com/downloads/#safari
+    - icon: safari
+- 3:
+    - text: firefox
+    - link: https://www.mozilla.org/en-US/firefox/all/
+    - icon: firefox
+- 4:
+    - text: opera
+    - link: http://www.opera.com/computer
+    - icon: opera
+
+
+
+#### Css icons
+
+Ubp uses the background-image css technique to display the browsers icons.
+The available css classes are:
+
+- chromeandroid
+- chrome
+- firefox
+- ie
+- opera
+- safariios
+- safari
+
+They are written in the unsupportedbrowserspopup.css css file, at the bottom of the file, in the BROWSERS ICONS section.
+
+Note: all icons come from the project
+<a href="https://github.com/alrra/browser-logos" target="_blank">browser-logos</a>
+
+
+To add your own icons, edit the css file accordingly.
+
+
+
+
+### displayOptions.showFooter
+
+bool (true)
+
+Shall we display the close popup button?
+This option is reserved for sadist people only.
+
+
+### displayOptions.lang
+
+string ("eng")
+
+A iso-639-2 (3 letters) code representing the lang to use.
+There are 3 things that depends on the lang:
+
+- the main popup message
+- the close button message (ok)
+- the recommended browsers list
+
+
+You can open the locale files (locale folder) and add the properties that you need.
+
+
+Note: if your website uses multiple languages, ensure that all the locales files
+			are loaded correctly (in the head tag).
+
+
+
+
+
+The final word
+------------------
+So, here we are, I think I've covered the essentials.
+Please send me if you spot some errors, or if you think that something is missing, or if you want to send me new
+languages.
+
+
+Have fun!
+
+
+
+
+
+

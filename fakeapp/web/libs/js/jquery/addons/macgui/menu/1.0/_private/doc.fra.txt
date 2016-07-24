@@ -1,0 +1,220 @@
+Doc
+============
+2014-11-20
+
+
+
+
+Intro
+--------
+
+macGuiMenu permet de créer des menus qui ont le même look que les menus de Mac Os X.
+Ces menus sont prévus pour être utilisés à deux endroits:
+- comme menus contextuels (clic droit)
+- comme menus d'une application
+
+L'avantage d'utiliser des menus est que les actions sont groupées à un endroit.
+
+
+Pour apprendre à utiliser macGuiMenu, veuillez suivre les tutoriels écrits et/ou vidéo.
+
+
+
+Fonctionnement
+------------------
+
+Pour comprendre le fonctionnement de macGuiMenu, vous devriez lire cette section linéairement.
+
+MacGuiMenu utilise différents éléments:
+- topmenu
+- panel
+- item
+- standardItem
+- zone
+- shortcut
+- contexte
+
+
+
+### topmenu
+
+Le top menu est une barre horizontale. Sur mac, lorsqu'on ouvre une application, cette barre horizontale
+est située au sommet de l'écran, ce qui a l'avantage de prendre très peu de place.
+Dans macGuiMenu, le topmenu représente également cette barre horizontale.
+La seule différence est que nous pouvons placer cette barre où nous voulons dans la page web.
+Par exemple, on peut sectionner la page web de démo en plusieurs zones, chaque zone pouvant contenir
+son propre topmenu.
+
+### panel
+
+Lorsqu'un élément du topmenu est cliqué, un panel s'ouvre.
+Un panel est un container; il contient un certain nombre d'items, chaque item représentant
+une action que l'on peut effectuer.
+MacGuiMenu permet de modifier la structure d'un panel dynamiquement (ajout/suppression d'items),
+on peut également créer de nouveaux panels à la demande. Pour ces raisons, chaque panel
+a un uid qui lui est propre.
+
+
+### item
+
+Un item représente une action que l'on peut effectuer. Visuellement, quand on passe la souris
+sur un item, la couleur de fond devient bleu, comme sur mac.
+Un item est unique pour une page web donnée.
+Cela se traduit par le fait que chaque item est associé à une uid, qui lui est donnée par le
+développeur.
+
+
+### standardItem
+
+Un item peut contenir n'importe quel html.
+Cependant, la majorité des items ont la même structure que macGuiMenu identifie
+avec le terme standardItem.
+Un standardItem utilise les éléments suivants:
+
+- ?checkmark
+- ?icon
+- label
+- ?shortcut
+- ?child
+
+
+### zone
+
+La notion de zone apparaît lorsque l'on créé des menus contextuels (clic droit).
+Une zone est l'espace dans lequel le clic droit va ouvrir un certain panel.
+Avec macGuiMenu, une zone est associée à un seul panel. Lorsqu'on fait un clic droit dans
+la zone, le panel s'ouvre.
+
+
+### shortcut
+
+Un shortcut est un raccourci clavier. Chaque item peut avoir un shortcut.
+Les shortcuts sont affectés par le développeur.
+Les shortcuts permettent d'augmenter grandement la productivité de l'utilisateur de la gui.
+
+
+### contexte
+
+De la même manière que les menus contextuels ne sont détectés qu'au sein d'une zone spécifique,
+les shortcuts ne fonctionnent que dans un contexte donné.
+Par conséquent, il est possible de créer des jeux de shortcuts ayant des shortcuts en commun,
+et de les affecter chacun à un contexte différent, sans qu'il y ait de conflits entre les shortcuts.
+Concrètement, un contexte est une surface délimitée par un ou plusieurs éléments.
+
+
+API
+---------
+Examinons maintenant l'api.
+
+
+### Général
+
+- executeItem: cette méthode est un peu spéciale,
+            car c'est toujours elle qui est appelée lorsqu'un
+            item est exécuté: il n'y a qu'une méthode
+            executeItem par page web.
+
+            macGuiMenu appelle executeItem chaque fois que:
+                - un item est cliqué
+                - ou bien le shortcut déclenché
+
+
+- getItem: permet de récupérer un item à partir de son uid
+- getPanel: permet de récupérer un panel à partir de son uid
+- destroyPanel: permet de supprimer un panel à partir de son uid
+- hideAllPanels: cache tous les panels d'un coup
+- closeOnWindowClickBehaviour:
+    déclenche le comportement qui fait que lorsqu'on clique sur l'écran,
+    tous les panels se ferment.
+    Lorsqu'on créé dynamiquement un panel, cette fonction peut être utile.
+
+- preparePanelBehaviour:
+        prépare un panel une seule fois (même si on appelle la méthode plusieurs fois)
+        On peut avoir besoin de ce comportement lorsqu'on créé un panel manuellement.
+----- preparePanelItemBehaviour (voir ci-dessous)
+
+- preparePanelItemBehaviour: prépare le comportement d'un item:
+            comment les enfants d'un item s'ouvrent,
+            et la manière dont ils se ferment, qui est assez
+            conventionnée (effet de sticker lorsqu'on pénètre le premier
+            élément d'un panel).
+
+
+
+
+### Création rapide de panels
+
+- createRightClickZone: on utilise cette méthode pour créer des menus contextuels.
+----- preparePanelBehaviour
+- createStandardPanel: on utilise cette méthode pour créer un panel contenant
+            des standardItems.
+            Un jPanel est renvoyé à l'utilisateur qui peut alors placer le panel
+            là où bon lui semble.
+----- prepareStandardItemHtml:
+            ajoute le shortcut de l'item si défini
+            renvoie le html de l'item
+
+### Top menu
+
+- createTopMenu: créé un topmenu
+- initTopMenu: prépare le comportement du top menu: la manière
+                dont les top items réagissent au survol et au clic
+                de la souris.
+- addTopMenuItem: permet d'ajouter des topmenu items de manière
+                    dynamique
+----- initTopMenu
+
+### StandardItem
+
+- getStandardItemProp: accès à une propriété d'un item en particulier
+- updateStandardItem: modification d'une propriété d'un item en particulier
+- createStandardItem:
+----- prepareStandardItemHtml
+- createAndPrepareStandardItem: appelle les deux méthodes suivantes:
+----- createStandardItem
+----- preparePanelItemBehaviour
+
+
+### checkmark
+
+- toggleStandardItemCheckmark: permet de toggle la checkmark d'un item
+- tickStandardItemCheckmark
+- untickStandardItemCheckmark
+- isCheckedStandardItem
+
+
+### active/inactive
+
+- toggleStandardItemActive: permet de toggle l'état actif d'un item
+- activateStandardItem
+- deactivateStandardItem
+- isActiveStandardItem
+
+
+### Modifier la structure dynamiquement
+
+- removeItem: permet de supprimer un item à partir de son uid.
+
+
+
+### shortcuts
+
+- setShortcuts: permet de définir directement le shortcut map utilisé par macGuiMenu
+- addShortcutZone: ajoute une surface pour un contexte donné
+- listenToShortcuts: cette méthode initialise tous les contextes définis précédemment
+                de manière à ce qu'ils écoutent les frappes du clavier de l'utilisateur.
+                On est obligé d'appeler cette méthode si on souhaite que macGuiMenu
+                détecte les shortcuts.
+
+
+
+
+
+
+
+
+
+
+
+
+

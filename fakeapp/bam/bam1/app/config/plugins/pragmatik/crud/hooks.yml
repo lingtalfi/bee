@@ -1,0 +1,3 @@
+merge:
+    komin.base.server.ascp.ajaxMasterServer._args.servers:
+        pragmatikCrudServer: @pragmatik.crud.server

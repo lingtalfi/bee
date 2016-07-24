@@ -1,0 +1,36 @@
+<form action="#" method="post">
+	<div>
+		Name:
+		<input type="text" name="name">
+		<span class="tip">Default error message</span>
+	</div>
+	<div>
+		Job:
+		<input data-beef-error="myerror" type="text" name="job">
+		<span class="tip">Custom error message</span>
+
+		<div class="myerror"></div>
+	</div>
+
+
+	<div class="idealthing" data-beef-ignore="1">
+		Your ideal thing:
+		<a class="configure" href="#">Click here to configure your ideal thing</a>
+        <span class="tip">
+            Dynamic element calling a remote form.
+        </span>
+		<!--  The field below is a helper and is not processed,
+		 since the parent has the data-beef-ignore attribute to 1-->
+		<input type="hidden" name="xx" value="irrelevant">
+
+		<div class="thelog"></div>
+	</div>
+
+
+
+	<div class="conf" data-beef-ignore="1">
+		Params:
+		<ul></ul>
+	</div>
+	
+</form>

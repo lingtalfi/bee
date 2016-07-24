@@ -1,0 +1,20 @@
+Brainstorm, standardItem ling notation
+=========================================
+2014-11-21
+
+
+
+Brainstorm:
+
+standard item ling notation
+mnémo: ulsico
+
+- syntax: <:> <uid> <:> <label> <:> <shortcut> <:> <icon> <:> <child> <:> <options>
+- options: <c>?<i>?
+- c: checkmark
+- i: inactive
+- d: dialog
+
+
+home
+:home.one: Ouvrir un nouveau fichier :cmd+c:::cid

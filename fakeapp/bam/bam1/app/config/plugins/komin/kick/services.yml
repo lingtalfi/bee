@@ -1,0 +1,5 @@
+komin:
+    kick:
+        cms:
+            _class: WebModule\Komin\Kick\Cms\KickCms
+            _args: §komin.kick.cmsParams§

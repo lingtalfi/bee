@@ -1,0 +1,18 @@
+--__BabyPushEndFlag__--
+building file list ... done
+skipping non-regular file "web/libs/unsupported-browsers-popup"
+skipping non-regular file "web/libs/jquery/easy-download-counter/1.0"
+web/share/music/concours-paris-2014/chiens-chats-2014-11-11.pdf
+skipping non-regular file "web/sherif/edc/edc-1.0"
+
+sent 78141 bytes  received 582 bytes  12111.23 bytes/sec
+total size is 147125058  speedup is 1868.90
+[sudo] password for ling: chmod -R 0777 "/home/ling/websites/lingtalfi/site/app/stats" 2>&1
+chmod -R 0777 "/home/ling/websites/lingtalfi/site/app/log/applog.txt" 2>&1
+unlink /home/ling/websites/lingtalfi/site/web/libs/jquery/easy-download-counter/1.0
+ln -s "/home/ling/websites/bee/approot0/web/libs/js/jquery/plugins/easy-download-counter/1.0" "/home/ling/websites/lingtalfi/site/web/libs/jquery/easy-download-counter/1.0" 2>&1
+unlink /home/ling/websites/lingtalfi/site/web/libs/unsupported-browsers-popup
+ln -s "/home/ling/websites/bee/approot0/web/libs/js/unsupported-browsers-popup" "/home/ling/websites/lingtalfi/site/web/libs/unsupported-browsers-popup" 2>&1
+unlink /home/ling/websites/lingtalfi/site/web/sherif/edc/edc-1.0
+ln -s "/home/ling/websites/bee/approot0/web/libs/js/jquery/plugins/easy-download-counter/1.0" "/home/ling/websites/lingtalfi/site/web/sherif/edc/edc-1.0" 2>&1
+Connection to 62.210.180.179 closed.

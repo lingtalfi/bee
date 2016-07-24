@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Beard Test</title>
+    <link rel="stylesheet" href="/public/js/jquery/qunit/1.12/qunit-1.12.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="/public/js/bee/lib/0.1/bee-0.1.js"></script>
+<script src="/public/js/jquery/qunit/1.12/qunit-1.12.0.js"></script>
+<script>
+
+
+test("arrayReplace1", function () {
+    var aoBase = {
+        one: 1,
+        two: 2
+    };
+    var aoNew = {
+        one: 11,
+        three: 3
+    };
+    var res = Bee.arrayReplace(aoBase, aoNew);
+    deepEqual(res, {
+        one: 11,
+        two: 2
+    }, "// only keys existing in base are replaced");
+});
+
+
+test("arrayReplace2", function () {
+    var aoBase = {
+        one: ['apple', 'banana'],
+        two: 2
+    };
+    var aoNew = {
+        one: 11,
+        three: 3
+    };
+    var res = Bee.arrayReplace(aoBase, aoNew);
+    deepEqual(res, {
+        one: 11,
+        two: 2
+    }, "// by default, an array is completely overridden");
+});
+
+
+test("arrayReplace3", function () {
+    var aoBase = {
+        one: ['apple', 'banana'],
+        two: 2
+    };
+    var aoNew = {
+        one: 11,
+        three: 3
+    };
+    var aPreserveKeys = ['one'];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys);
+    deepEqual(res, {
+        one: ['apple', 'banana'],
+        two: 2
+    }, "// when using preserve keys, an array is protected, and its keys must be overridden individually");
+});
+
+
+test("arrayReplace4", function () {
+    var aoBase = {
+        one: {apple: "pomme", banana: "banane"},
+        two: 2
+    };
+    var aoNew = {
+        one: {apple: "Apfel", cherry: "Kirsche"},
+        three: 3
+    };
+    var aPreserveKeys = ['one'];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys);
+    deepEqual(res, {
+        one: {apple: "Apfel", banana: "banane"},
+        two: 2
+    }, "// when using preserve keys, an array is protected, and its keys must be overridden individually (2)");
+});
+
+
+test("arrayReplace5", function () {
+    var aoBase = {
+        one: {
+            fruits: {apple: "pomme", banana: "banane"},
+            sports: ["judo", "karate"]
+        },
+        two: 2
+    };
+    var aoNew = {
+        one: {
+            fruits: {apple: "Apfel", cherry: "Kirsche"},
+            sports: 6
+        },
+        three: 3
+    };
+    var aPreserveKeys = ['one.fruits'];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys);
+    deepEqual(res, {
+        one: {
+            fruits: {apple: "Apfel", banana: "banane"},
+            sports: 6
+        },
+        two: 2
+    }, "// preserve keys work recursively, using dot notation");
+});
+
+
+test("arrayReplace6", function () {
+    var aoBase = {
+        one: {
+            "fruits.favourite": {apple: "pomme", banana: "banane"},
+            sports: ["judo", "karate"]
+        },
+        two: 2
+    };
+    var aoNew = {
+        one: {
+            "fruits.favourite": {apple: "Apfel", cherry: "Kirsche"},
+            sports: 6
+        },
+        three: 3
+    };
+    var aPreserveKeys = ['one.fruits\\.favourite'];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys);
+    deepEqual(res, {
+        one: {
+            "fruits.favourite": {apple: "Apfel", banana: "banane"},
+            sports: 6
+        },
+        two: 2
+    }, "// preserve keys work recursively, using dot notation (2)");
+});
+
+
+//------------------------------------------------------------------------------/
+// ALLOW NEW KEYS
+//------------------------------------------------------------------------------/
+test("arrayReplace7", function () {
+    var aoBase = {
+        one: 1,
+        two: 2
+    };
+    var aoNew = {
+        one: 11,
+        three: 3
+    };
+    var aPreserveKeys = [];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys, true);
+    deepEqual(res, {
+        one: 11,
+        two: 2,
+        three: 3
+    }, "// new keys are created");
+});
+
+test("arrayReplace8", function () {
+    var aoBase = {
+        one: ["apple", "banana"],
+        two: 2
+    };
+    var aoNew = {
+        one: 11,
+        three: 3
+    };
+    var aPreserveKeys = ["one"];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys, true);
+    deepEqual(res, {
+        one: ["apple", "banana"],
+        two: 2,
+        three: 3
+    }, "// when using preserve keys, an array is protected, and its keys must be overridden individually");
+});
+
+
+test("arrayReplace9", function () {
+    var aoBase = {
+        one: {apple: "pomme", banana: "banane"},
+        two: 2
+    };
+    var aoNew = {
+        one: {apple: "Apfel", cherry: "Kirsche"},
+        three: 3
+    };
+    var aPreserveKeys = ["one"];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys, true);
+    deepEqual(res, {
+        one: {apple: "Apfel", banana: "banane", cherry: "Kirsche"},
+        two: 2,
+        three: 3
+    }, "// when using preserve keys, an array is protected, and its keys must be overridden individually (2), new keys can be created however");
+});
+
+test("arrayReplace10", function () {
+    var aoBase = {
+        one: {
+            fruits: {apple: "pomme", banana: "banane"},
+            sports: ["judo", "karate"]
+        },
+        two: 2
+    };
+    var aoNew = {
+        one: {
+            fruits: {apple: "Apfel", cherry: "Kirsche"},
+            sports: 6
+        },
+        three: 3
+    };
+    var aPreserveKeys = ['one.fruits'];
+    var res = Bee.arrayReplace(aoBase, aoNew, aPreserveKeys, true);
+    deepEqual(res, {
+        one: {
+            fruits: {apple: "Apfel", banana: "banane", cherry: "Kirsche"},
+            sports: 6
+        },
+        two: 2,
+        three: 3
+    }, "// preserve keys work recursively, using dot notation");
+});
+
+
+
+</script>
+</body>
+</html>

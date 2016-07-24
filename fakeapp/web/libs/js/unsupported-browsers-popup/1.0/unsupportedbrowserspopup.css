@@ -1,0 +1,101 @@
+/**
+    Icons taken from:
+    https://github.com/alrra/browser-logos#readme
+**/
+
+.unsupportedbrowserspopup-overlay {
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: black;
+    opacity: 0.5;
+}
+
+.unsupportedbrowserspopup-container {
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -200px;
+    margin-top: -150px;
+    width: 400px;
+    height: 300px;
+
+    background: white;
+    z-index: 10000;
+    text-align: center;
+    padding: 10px;
+    border: 3px dashed black;
+
+}
+
+.unsupportedbrowserspopup-container .message {
+    margin-top: 30px;
+}
+
+.unsupportedbrowserspopup-container .browsers {
+    margin-top: 30px;
+}
+
+.unsupportedbrowserspopup-container .footer {
+    clear: both;
+    padding-top: 30px;
+}
+
+.unsupportedbrowserspopup-container .footer.hidden {
+    display: none;
+}
+
+.unsupportedbrowserspopup-container .footer button {
+    width: 80px;
+    height: 30px;
+}
+
+.unsupportedbrowserspopup-container .browsers li {
+    float: left;
+    display: block;
+    width: 48px;
+    padding: 0;
+    margin: 0;
+    margin-right: 10px;
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser {
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 48px;
+    height: 48px;
+}
+
+/*******************************
+BROWSERS ICONS
+*******************************/
+.unsupportedbrowserspopup-container .browsers li .browser.chromeandroid {
+    background-image: url("img/chrome-android_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.chrome {
+    background-image: url("img/chrome_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.firefox {
+    background-image: url("img/firefox_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.ie {
+    background-image: url("img/internet-explorer_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.opera {
+    background-image: url("img/opera_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.safariios {
+    background-image: url("img/safari-ios_48x48.png");
+}
+
+.unsupportedbrowserspopup-container .browsers li .browser.safari {
+    background-image: url("img/safari_48x48.png");
+}

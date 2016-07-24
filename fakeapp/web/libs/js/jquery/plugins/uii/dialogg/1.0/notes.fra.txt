@@ -1,0 +1,16 @@
+2014-10-16
+------------
+
+
+
+La méthode content
+-------------------
+Il est très naturel d'instancier le plugin directement sur l'élément qui représente le content.
+Cependant, lorsque qu'une fois instancié on utilise la méthode content, le contenu est remplacé par le nouveau contenu.
+Autrement dit, notre ancienne référence est remplacée et ne référence plus un contenu visible dans le DOM.
+Cela pose des problèmes par la suite: si on appelle d'autres méthodes, le dialogg n'est plus trouvé.
+Cela est dû au fait que toutes les méthodes de dialogg cherchent d'abord à récupérer l'objet .dialogg auquel les options sont assignées,
+et vu que la référence n'est plus dans le DOM, l'objet .dialogg ne peut pas être trouvé.
+
+Un workaround est de récupérer manuellement la référence à .dialogg (var jDialog = jOldContent.closest(.dialogg)).
+Puis d'utiliser jDialog par la suite à la place de jContent.

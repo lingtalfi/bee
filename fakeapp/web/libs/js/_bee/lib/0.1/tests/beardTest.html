@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Beard Test</title>
+    <link rel="stylesheet" href="/public/js/jquery/qunit/1.12/qunit-1.12.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="/public/js/bee/lib/0.1/bee-0.1.js"></script>
+<script src="/public/js/jquery/qunit/1.12/qunit-1.12.0.js"></script>
+<script>
+
+
+test("renderBeardTemplate", function () {
+
+    var mini = Bee.getBeard();
+
+    //------------------------------------------------------------------------------/
+    // SINGLE TAG
+    //------------------------------------------------------------------------------/
+    var tpl = "{{hello}}";
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "{{hello}}", "raw tag no replacement");
+
+
+    var tpl = "{{hello}}";
+    var aoTags = {hello: "doo"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "doo", "raw tag replacement");
+
+
+    var tpl = "{{hello|bye}}";
+    var aoTags = {hello: "doo"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "doo", "raw tag: replacement with multiple values");
+
+
+    var tpl = "{{hello|bye}}";
+    var aoTags = {bye: "doo"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "doo", "raw tag: replacement with multiple values (2)");
+
+
+    var tpl = "{{&hello}}";
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "{{&hello}}", "escaped tag no replacement");
+
+
+    var tpl = "{{&hello}}";
+    var aoTags = {hello: 'do"o'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "do&quot;o", "escaped tag replacement");
+
+
+    var tpl = "{{&hello|bye|sure}}";
+    var aoTags = {bye: 'do"o'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "do&quot;o", "escaped tag: replacement with multiple values");
+
+
+    var tpl = "{{hello=}}";
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "", "tag with default value of empty string");
+
+
+    var tpl = "{{hello=6}}";
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "6", "tag with default value of 6");
+
+
+    var tpl = "{{hello=6}}";
+    var aoTags = {hello: 7};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "7", "replacement with a value");
+
+
+    var tpl = "{{hello|bye=6}}";
+    var aoTags = {bye: 7};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, "7", "replacement with multiple value");
+
+
+    var tpl = '{{kaboo=top - /ko "to\'p"}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'top - /ko "to\'p"', "testing default variable with special chars");
+
+
+    var tpl = '{{&hello=do"o}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'do"o', "testing that default value is not escaped");
+
+
+    var tpl = '{{&hello=do"o}}';
+    var aoTags = {hello: 'zi"i'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'zi&quot;i', "testing that tag value is escaped");
+
+
+    //------------------------------------------------------------------------------/
+    // CONDITIONAL TAG CONTAINER
+    //------------------------------------------------------------------------------/
+    var tpl = '{{myVar?}}{{/myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on existence: not met");
+
+    var tpl = '{{myVar?}}{{/myVar}}';
+    var aoTags = {myVar: null};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on existence: met with empty inner content");
+
+    var tpl = '{{myVar?}}doo{{/myVar}}';
+    var aoTags = {myVar: null};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on existence: met with non empty inner content");
+
+    var tpl = '{{myVar?}}doo{{var2?}}soo{{/var2}}{{/myVar}}';
+    var aoTags = {myVar: null};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on existence: nested condition on existence not matching inner condition");
+
+    var tpl = '{{myVar?}}doo{{var2?}}soo{{/var2}}{{/myVar}}';
+    var aoTags = {myVar: null, var2: 'any'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doosoo', "condition on existence: nested condition on existence matching inner condition");
+
+
+
+    var tpl = '{{myVar?}}content one{{myVar:}}content two{{/myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'content two', "// condition on existence with ternary operator");
+
+
+    var tpl = '{{myVar?}}content one{{myVar:}}content two{{/myVar}}';
+    var aoTags = {myVar: 'any'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'content one', "/// first content is chosen when the variable does exist");
+
+    var tpl = '{{myVar?6}}content one{{myVar:}}content two{{/myVar}}';
+    var aoTags = {myVar: 'any'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'content two', "// ternary operator and condition matching");
+
+    var tpl = '{{myVar?empty}}content one{{myVar:}}content two{{/myVar}}';
+    var aoTags = {myVar: '0'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'content one', "// ternary operator and condition matching with empty");
+
+
+
+    var tpl = '{{myVar?6}}doo{{/myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: not met");
+
+
+    var tpl = '{{myVar?6}}doo{{/myVar}}';
+    var aoTags = {myVar: null};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: not met: testing value matching");
+
+
+    var tpl = '{{myVar?6}}doo{{/myVar}}';
+    var aoTags = {myVar: 6};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: not met: testing value integer tolerance matching");
+
+
+    var tpl = '{{myVar?6}}doo{{/myVar}}';
+    var aoTags = {myVar: '6'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: not met: testing value integer tolerance matching (2)");
+
+
+    var tpl = '{{myVar?null}}doo{{/myVar}}';
+    var aoTags = {myVar: null};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing null value matching");
+
+    var tpl = '{{myVar?null}}doo{{/myVar}}';
+    var aoTags = {myVar: ''};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: met: not met: testing null value non matching");
+
+    var tpl = '{{myVar?:null}}doo{{/myVar}}';
+    var aoTags = {myVar: 'null'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing literal null value matching");
+
+
+    var tpl = '{{myVar?true}}doo{{/myVar}}';
+    var aoTags = {myVar: true};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing true value matching");
+
+
+    var tpl = '{{myVar?true}}doo{{/myVar}}';
+    var aoTags = {myVar: 1};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: met: not met: testing triple equality value non matching with integer 1");
+
+
+    var tpl = '{{myVar?1}}doo{{/myVar}}';
+    var aoTags = {myVar: true};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: met: not met: testing triple equality value non matching with bool true");
+
+
+    var tpl = '{{myVar?false}}doo{{/myVar}}';
+    var aoTags = {myVar: false};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing false value matching");
+
+
+    var tpl = '{{myVar?false}}doo{{/myVar}}';
+    var aoTags = {myVar: 0};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: met: not met: testing triple equality value non matching with integer 0");
+
+
+    var tpl = '{{myVar?0}}doo{{/myVar}}';
+    var aoTags = {myVar: false};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "condition on value: met: not met: testing triple equality value non matching with bool false");
+
+
+    var tpl = '{{myVar?:true}}doo{{/myVar}}';
+    var aoTags = {myVar: 'true'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing literal true value matching");
+
+
+    var tpl = '{{myVar?:false}}doo{{/myVar}}';
+    var aoTags = {myVar: 'false'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "condition on value: met: testing literal false value matching");
+
+
+    var tpl = '{{myVar?empty}}doo{{/myVar}}';
+    var aoTags = {myVar: '0'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "met: testing empty value matching with 0");
+
+
+    var tpl = '{{myVar?empty}}doo{{/myVar}}';
+    var aoTags = {myVar: ''};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "met: testing empty value matching with empty string");
+
+
+    var tpl = '{{myVar?notempty}}doo{{/myVar}}';
+    var aoTags = {myVar: '0'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "met: testing notempty value matching with 0");
+
+
+    var tpl = '{{myVar?notempty}}doo{{/myVar}}';
+    var aoTags = {myVar: ''};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "met: testing notempty value matching with empty string");
+
+
+    var tpl = '{{myVar?notempty}}doo{{/myVar}}';
+    var aoTags = {myVar: 'any'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "met: testing notempty value matching with any string");
+
+
+    var tpl = '{{myVar?:empty}}doo{{/myVar}}';
+    var aoTags = {myVar: 'empty'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "met: testing literal empty value");
+
+
+    var tpl = '{{myVar?:notempty}}doo{{/myVar}}';
+    var aoTags = {myVar: 'notempty'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "met: testing literal notempty value");
+
+    //------------------------------------------------------------------------------/
+    // TAG LIST
+    //------------------------------------------------------------------------------/
+    var tpl = '{{#myVar}}name: {{name}};{{/#myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{#myVar}}name: {{name}};{{/#myVar}}', "simple list: testing no tag value");
+
+
+    var tpl = '{{#myVar}}name: {{name}};{{/#myVar}}';
+    var aoTags = {myVar: "bebebe"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{#myVar}}name: {{name}};{{/#myVar}}', "simple list: testing invalid input at list level (type string)");
+
+    var tpl = '{{#myVar}}name: {{name}};{{/#myVar}}';
+    var aoTags = {myVar: {name: "bebebe"}};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "simple list: testing invalid input at node level (string instead of array)");
+
+
+    var tpl = '{{#myVar}}name: {{name}};{{/#myVar}}';
+    var aoTags = {
+        myVar: [
+            {name: "john"},
+            {name: "ben"}
+        ]
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;name: ben;', "simple list: testing valid input");
+
+
+    var tpl = '{{#myVar.one}}name: {{name}};{{/#myVar.one}}';
+    var aoTags = {
+        myVar: {
+            one: [
+                {name: "john"},
+                {name: "ben"}
+            ]
+        }
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;name: ben;', "simple list: testing valid input with dot notation");
+
+
+    var tpl = '{{#myVar\\.one}}name: {{name}};{{/#myVar\\.one}}';
+    var aoTags = {
+        "myVar.one": [
+            {name: "john"},
+            {name: "ben"}
+        ]
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;name: ben;', "simple list: testing valid input with dot notation (2)");
+
+
+    var tpl = '{{#myVar}}name: {{name}};{{#elements}}elName: {{name}}{{/#elements}}{{/#myVar}}';
+    var aoTags = {
+        myVar: [
+            {name: "john"},
+            {name: "ben"}
+        ]
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;{{#elements}}elName: {{name}}{{/#elements}}name: ben;{{#elements}}elName: {{name}}{{/#elements}}', "simple list: testing no tag value on nested tag list");
+
+
+    var tpl = '{{#myVar}}name: {{name}};{{#elements}}elName: {{name}}+{{/#elements}}{{/#myVar}}';
+    var aoTags = {
+        myVar: [
+            {name: "john", elements: [
+                {name: "doo"}
+            ]},
+            {name: "ben", elements: [
+                {name: "dii"},
+                {name: "fii"}
+            ]}
+        ]
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;elName: doo+name: ben;elName: dii+elName: fii+', "simple list: testing context isolation");
+
+
+    var tpl = '{{#elements}}name: {{name}};{{##elements}}elName: {{name}}+{{/##elements}}{{/#elements}}';
+    var aoTags = {
+        elements: [
+            {name: "john", elements: [
+                {name: "doo"}
+            ]},
+            {name: "ben", elements: [
+                {name: "dii"},
+                {name: "fii"}
+            ]}
+        ]
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'name: john;elName: doo+name: ben;elName: dii+elName: fii+', "simple list: testing same tag list name protection mechanism");
+
+
+    //------------------------------------------------------------------------------/
+    // SOURCE & REFERENCE TAG
+    //------------------------------------------------------------------------------/
+
+    var tpl = '{{@myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{@myVar}}', "straight replacement: reference without source is not interpreted");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "straight replacement: reference with source is replaced: empty content");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "straight replacement: reference with source is replaced: empty content");
+
+    //------------------------------------------------------------------------------/
+    //
+    //------------------------------------------------------------------------------/
+    var tpl = '{{@$alias;}}{{:myVar}}doo{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{@$alias;}}', "replacement with variable: failing variable replacement system with undefined variable");
+
+
+    var tpl = '{{@$alias;}}{{:myVar}}doo{{/:myVar}}';
+    var aoTags = {alias: "doo"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{@$alias;}}', "replacement with variable: failing variable replacement system with mismatching variable");
+
+
+    var tpl = '{{@$alias;}}{{:myVar}}doo{{/:myVar}}';
+    var aoTags = {alias: "myVar"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable: variable replacement system with straight matching variable");
+
+
+    var tpl = '{{@my$alias;r}}{{:myVar}}doo{{/:myVar}}';
+    var aoTags = {alias: "Va"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable: variable replacement system with matching variable as part of the variable name");
+
+
+    //------------------------------------------------------------------------------/
+    //
+    //------------------------------------------------------------------------------/
+    var tpl = '{{@$alias;=default}}{{:default}}doo{{/:default}}{{:jj}}jj{{/:jj}}';
+    var aoTags = {alias: 'jj'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'jj', "replacement with variable and default value: testing when variable matches");
+
+
+    var tpl = '{{@$alias;=default}}{{:default}}doo{{/:default}}';
+    var aoTags = {alias: 'jj'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable and default value: testing when default value matches");
+
+    var tpl = '{{@dii$alias;=default}}{{:default}}doo{{/:default}}';
+    var aoTags = {alias: "jj"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable and default value: testing composed variable replacement and default value");
+
+
+    //------------------------------------------------------------------------------/
+    //
+    //------------------------------------------------------------------------------/
+    var tpl = '{{@$type;=[aa=doo, bb=BB]}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{@$type;=[aa=doo, bb=BB]}}', "replacement with variable and adaptor: variable does not exist, no default value");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]||default}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'default', "replacement with variable and adaptor: variable does not exist, default value");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {type: 'cc'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{@$type;=[aa=doo, bb=BB]}}', "replacement with variable and adaptor: variable exists but does not match adaptor mapping, no fallback, not matching source tag, no default value");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]||default}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {type: 'cc'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'default', "replacement with variable and adaptor: variable exists but does not match adaptor mapping, no fallback, not matching source tag, default value");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]||default}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {type: 'aa'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable and adaptor: variable exists, match adaptor mapping");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]|doo|default}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}';
+    var aoTags = {type: 'daa'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable and adaptor: variable exists, does not match adaptor mapping, fallback with non matching variable");
+
+
+    var tpl = '{{@$type;=[aa=doo, bb=BB]|doo|default}}{{:doo}}doo{{/:doo}}{{:default}}default{{/:default}}{{:daa}}daa{{/:daa}}';
+    var aoTags = {type: 'daa'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo', "replacement with variable and adaptor: variable exists and matches a source tag, but fallback value has precedence");
+
+
+    //------------------------------------------------------------------------------/
+    // MIXING: TESTING TAG INTEGRITY WHEN INJECTED INSIDE OTHER TAGS
+    //------------------------------------------------------------------------------/
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{doo}}{{/:myVar}}';
+    var aoTags = {doo: 6};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: 6', "inside source tag: use single tag");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{&doo}}{{/:myVar}}';
+    var aoTags = {doo: 'di"i'};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: di&quot;i', "inside source tag: use single tag with escaped form");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{doo=45}}{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: 45', "inside source tag: use single tag with default value");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{doo?}}{{doo=45}}{{/doo}}{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: ', "inside source tag: use conditional tag mismatching");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{doo?}}{{doo=45}}{{/doo}}{{/:myVar}}';
+    var aoTags = {doo: 46};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: 46', "inside source tag: use conditional tag mismatching (2)");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{#items}}{{name=no name}}{{/#items}}{{/:myVar}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: {{#items}}{{name=no name}}{{/#items}}', "inside source tag: use tag list with invalid input");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{#items}}{{name=no name}};{{/#items}}{{/:myVar}}';
+    var aoTags = {items: [
+        {name: "john"},
+        {doo: "john"}
+    ]};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: john;no name;', "inside source tag: use tag list with valid input");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo: {{#items}}{{name=no name}};{{##items}}Name: {{name}};{{/##items}}{{/#items}}{{/:myVar}}';
+    var aoTags = {items: [
+        {
+            name: "john", items: [
+            {name: "x"},
+            {}
+        ]
+        },
+        {
+            firstname: "paul", items: [
+            {name: "y"},
+            {name: "z"}
+        ]
+        }
+    ]};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doo: john;Name: x;Name: {{name}};no name;Name: y;Name: z;', "inside source tag: use nested tag list with valid input");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}doo{{@myVar2}}{{/:myVar}}{{:myVar2}}doo2{{/:myVar2}}';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'doodoo2', "inside source tag: use other source tag");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}Name: {{name}}{{@myVar2}}{{/:myVar}}{{:myVar2}}{{name}}{{/:myVar2}}';
+    var aoTags = {name: "john"};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'Name: johnjohn', "inside source tag: use other source tag and same context");
+
+
+    var tpl = '{{@myVar}}{{:myVar}}Name: {{name}}{{#items}}{{@myVar2}}{{/#items}}{{/:myVar}}{{:myVar2}}{{name}}{{/:myVar2}}';
+    var aoTags = {name: "john", items: [
+        {name: "paul"},
+        {name: "amstel"}
+    ]};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'Name: johnpaulamstel', "inside source tag: use other source tag in a tag list context");
+
+
+    //------------------------------------------------------------------------------/
+    // METHOD TAGS
+    //------------------------------------------------------------------------------/
+    // TO ATTRIBUTES
+    //------------------------------------------------------------------------------/
+    var tpl = 'data-beard-method="toAttributes( po, [ class=baseClass, id=foo ] )"';
+    var aoTags = {
+        po: {
+            class: "test myClass",
+            id: "doo",
+            style: "background:red;"
+        }
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' class="baseClass test myClass" id="doo" style="background:red;"', "use merging of class and overriding of id");
+
+
+    var tpl = 'data-beard-method = "toAttributes( po, [ class = \'baseClass\', style=\' border: 1px solid black \' ] )"';
+    var aoTags = {
+        po: {
+            class: "test myClass",
+            id: "doo",
+            style: "background:red;"
+        }
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' class="baseClass test myClass" id="doo" style=" border: 1px solid black ;background:red;"', "use merging of style");
+
+
+    var tpl = 'data-beard-method="toAttributes( po, [], [one] )"';
+    var aoTags = {
+        po: {
+            one: 56,
+            two: 78
+        }
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' two="78"', "testing filter");
+
+
+    var tpl = 'data-beard-method="toAttributes( po, [], [one, three] )"';
+    var aoTags = {
+        po: {
+            one: 56,
+            two: 78,
+            three: 90,
+            four: 12
+        }
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' two="78" four="12"', "testing filter (2)");
+
+
+    var tpl = 'data-beard-method="toAttributes( po, [], [one, three] )"';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "testing non existing value still process");
+
+
+    var tpl = 'data-beard-method="toAttributes( po, [one=poo, two=soo], [one, three] )"';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' two="soo"', "testing non existing still can process base array");
+
+
+    var tpl = 'data-beard-method="toAttributes( po.lo)"';
+    var aoTags = {po: {
+        lo: {
+            one: 56,
+            two: 78
+        }
+    }};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, ' one="56" two="78"', "testing dot value");
+
+
+    // IF EXISTS
+    //------------------------------------------------------------------------------/
+    var tpl = 'data-beard-method="ifExists(po, do)"';
+    var aoTags = {
+        po: 6,
+        lo: 7
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'do', "testing simple string replacement");
+
+
+    var tpl = 'data-beard-method="ifExists(po, \'do{{lo}}do\')"';
+    var aoTags = {
+        po: 6,
+        lo: 7
+    };
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'do7do', "testing simple string replacement with tag");
+
+
+    var tpl = 'data-beard-method="ifExists(po, do)"';
+    var aoTags = {};
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '', "testing no match string replacement");
+
+    //------------------------------------------------------------------------------/
+    // CONTEXT TAGS
+    //------------------------------------------------------------------------------/
+    var tpl = '{{*static}}static {{tag1}}{{/*static}} other content {{*dynamic}}dynamic {{tag2}}{{/*dynamic}}';
+    var aoTags = {
+        tag1: '111',
+        tag2: '222'
+    };
+    mini.setContext("static");
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'static 111 other content {{*dynamic}}dynamic {{tag2}}{{/*dynamic}}', "testing static context");
+
+
+    var tpl = '{{*static}}static {{tag1}}{{/*static}} other content {{*dynamic}}dynamic {{tag2}}{{/*dynamic}}';
+    var aoTags = {
+        tag1: '111',
+        tag2: '222'
+    };
+    mini.setContext("dynamic");
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{*static}}static {{tag1}}{{/*static}} other content dynamic 222', "testing dynamic context");
+
+
+    var tpl = '{{*static}}static {{tag1}}{{/*static}} other content {{*dynamic}}dynamic {{tag2}}{{/*dynamic}}{{*dynamic}} and me {{tag3}}{{/*dynamic}}';
+    var aoTags = {
+        tag1: '111',
+        tag2: '222',
+        tag3: '333'
+    };
+    mini.setContext("dynamic");
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, '{{*static}}static {{tag1}}{{/*static}} other content dynamic 222 and me 333', "testing multiple dynamic context");
+
+
+
+    var tpl = '{{*dynamic}}{{:myVar}}doo: {{doo}}{{/:myVar}}{{/*dynamic}}other content {{*dynamic}}dynamic {{@myVar}}{{/*dynamic}}';
+    var aoTags = {
+        tag1: '111',
+        doo: '6'
+    };
+    mini.setContext("dynamic");
+    var res = mini.renderTemplate(tpl, aoTags);
+    equal(res, 'other content dynamic doo: 6', "testing call to source tag set in dynamic context, from dynamic context");
+
+});
+
+</script>
+</body>
+</html>

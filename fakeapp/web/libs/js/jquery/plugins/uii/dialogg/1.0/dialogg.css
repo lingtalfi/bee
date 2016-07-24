@@ -1,0 +1,55 @@
+.dialogg {
+    height: auto;
+    border: 1px solid black;
+    background: white;
+}
+
+.dialogg .titlebar {
+    background: black;
+    height: 20px;
+}
+
+.dialogg .titlebar .title {
+    color: white;
+    margin-left: 10px;
+}
+
+.dialogg .titlebar .close {
+    position: absolute;
+    right: 0px;
+}
+
+.dialogg .content {
+    /**
+    * Do not set the height here,
+    * otherwise, the content will be stuck and might not be synced
+    * with your expectations
+    **/
+    /*height: 100px;*/
+    overflow-y: scroll;
+}
+
+.dialogg .buttonsbar {
+    height: 40px;
+    display: block;
+}
+
+.dialogg .buttonsbar button {
+    margin-top: 8px;
+    margin-right: 20px;
+    float: right;
+}
+
+.dialogg-overlay {
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: black;
+    opacity: 0.5;
+}
+
+
+
+

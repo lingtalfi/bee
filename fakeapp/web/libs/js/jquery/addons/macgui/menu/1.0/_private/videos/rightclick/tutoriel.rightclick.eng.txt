@@ -1,0 +1,102 @@
+Tutorial: Right click
+============
+2014-11-21
+
+
+
+Hi, I'm lingtalfi.
+In this tutorial, we will create a contextual menu with macGuiMenu.
+
+The final result will look like this (t).
+
+In order to successfully complete this tutorial, you need to have a basic understanding of javascript and jquery.
+I also recommend that you first watch the tutorial on topmenus, since I will be reusing concepts explained in the topmenu tutorial.
+
+
+
+Let's start by downloading the startup file.
+This file contains the basic layout, without any javascript code.
+We will add javascript code as we go through this tutorial.
+
+
+
+(montrer le résultat après chaque étape)
+
+0.
+
+    We will start by adding the macGuiMenu library and its dependencies to our html page
+
+1.
+
+    We will now create the jZone1 variable, it will contain our screen zone.
+    We can now call the createRightClickZone.
+
+    This method takes two arguments: a zone, and a panel identifier.
+    The zone is simply a jquery object, in this case we will pass the jZone1 variable.
+
+    For the panel identifier, or uid, let's put desktop.
+    Now, we can use the createStandardPanel method to create the desktop panel.
+    The createStandardPanel method has been explained in the topmenus tutorial, so I won't
+    talk much about it.
+
+    Let's create some random panel.
+
+    Before we test our code, we need to define the action when an item is executed.
+    In this tutorial, we will display the uid of the executed item next to the apple
+    at the bottom middle of the screen.
+
+    We will use the executeItem method, like in the previous tutorial.
+
+    We can now test our code (t)
+    If we rightclick INSIDE the screen zone, our menu appears.
+    If we rightclick OUTSIDE the screen zone, the browser contextual menu appears.
+
+    We can check that clicking on an item triggers the corresponding action (t).
+
+    However, if we press the ctrl+a shortcut now, it won't work,
+    because we haven't tell MacGuiMenu to listen to the keyboard shortcuts now.
+
+    So let's go back to the code and add the following two lines (t).
+    Now the shortcut should work.
+
+
+2.
+
+    The last step of this tutorial will be to create a second contextual menu
+    that opens when we right click the folder inside the screen (s).
+    We will call the createRightClickZone method again;
+    the first argument will be the jquery object representing the folder zone,
+    and let's call our panel folder.
+
+    We now need to create the panel with an uid equals to folder.
+
+
+    Let's check the gui one last time (t).
+
+    So that's it, this is the end of the second tutorial.
+    I hope this was useful.
+
+    Thanks for watching, bye.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

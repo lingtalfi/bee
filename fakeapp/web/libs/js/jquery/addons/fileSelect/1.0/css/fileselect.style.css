@@ -1,0 +1,60 @@
+.fileselect {
+    width: 100%;
+}
+
+.fileselect thead th{
+    text-align: left;
+    font-weight: normal;
+
+
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top,  #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(50%,#f1f1f1), color-stop(51%,#e1e1e1), color-stop(100%,#f6f6f6)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0 ); /* IE6-9 */
+
+
+    background: #a9e4f7; /* Old browsers */
+    background: -moz-linear-gradient(top,  #a9e4f7 0%, #0fb4e7 52%, #a9e4f7 99%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9e4f7), color-stop(52%,#0fb4e7), color-stop(99%,#a9e4f7)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #a9e4f7 0%,#0fb4e7 52%,#a9e4f7 99%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #a9e4f7 0%,#0fb4e7 52%,#a9e4f7 99%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #a9e4f7 0%,#0fb4e7 52%,#a9e4f7 99%); /* IE10+ */
+    background: linear-gradient(to bottom,  #a9e4f7 0%,#0fb4e7 52%,#a9e4f7 99%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a9e4f7', endColorstr='#a9e4f7',GradientType=0 ); /* IE6-9 */
+
+
+
+}
+
+.fileselect .filesystem li.dir,
+.fileselect .filesystem li.file {
+    background-repeat: no-repeat;
+    background-position: left top;
+    text-indent: 20px;
+    margin-left: 0;
+    list-style-type: none;
+
+}
+
+.fileselect .filesystem li.selected {
+    background-color: #1f49a2;
+    color: white;
+}
+
+
+.fileselect .filesystem li.dir {
+    background-image: url(dir.png);
+}
+
+.fileselect .filesystem li.dir.open {
+    background-image: url(opendir.png);
+}
+
+.fileselect .filesystem li.file {
+    background-image: url(file.png);
+}
+

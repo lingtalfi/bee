@@ -1,0 +1,187 @@
+__plugins:
+    - komin/base
+    - komin/beast
+    - komin/user
+    - komin/kick
+    - komin/repository
+    - komin/installer
+    - pragmatik/crud
+    - bware/symphoBee
+
+
+__tmp:
+    lingLazy:
+        superLoggerSkippedRules:  
+            - translator.notFound.catalog
+
+
+my:
+    dbUser: root
+    dbPass: root
+    privateCacheDir: /tmp/bee   # should be use as the base for all caching systems of the application
+    appRoot: /Volumes/Macintosh HD 2/web/Komin>/service création/projets/bee/developer/bee/approot0/_test/do
+    superLogFile: /tmp/bam1.superlog.txt
+
+
+
+bware:
+    symphoBee:
+        webApp:
+            colombusRouter:
+                routeNodes: []
+                        
+                defaultController: WebModule\Bware\SymphoBee\Controller\HelloController::hi
+                defaultControllerConstructorArgs: []
+            listeners:
+                request:
+                    0: 
+                        - bware.symphoBee.webAppListeners.colombusRouterListener::listen          
+                        
+
+           
+            
+komin:
+    base:
+        application:
+            adr:            
+                libs: []
+            bridgeParams: 
+                pluginAssetsRootDir: [web]/plugins/assets
+                pluginAssetsRootUrl: /_test/do/web/plugins/assets
+                
+            tokenManagerOptions: []                            
+        db:
+            pdoConnections:
+                default:
+                    dsn: mysql:dbname=webtv;host=localhost
+                    user: §my.dbUser§
+                    pass: §my.dbPass§
+                    options: []
+                                        
+        lang:
+            defaultLang: eng
+            translator:
+                translationsRootFolder: [app]/lang
+        log:
+            loggerListeners:
+                toFile:
+                    args:
+                        file: §my.superLogFile§ 
+                        fileRotator: @komin.base.log.fileRotator
+                        options: []
+#                            sound: beep        
+            supperLogger:
+                skippedRules: §__tmp.lingLazy.superLoggerSkippedRules§
+        notation:                
+            psnSymbols:
+                root: §my.appRoot§
+                app: §my.appRoot§/app
+                cache: §my.appRoot§/app/cache
+                config: §my.appRoot§/app/config
+                log: §my.appRoot§/app/log
+                lib: §my.appRoot§/lib
+                packages: §my.appRoot§/packages
+                private: §my.appRoot§/private
+                src: §my.appRoot§/src
+                web: §my.appRoot§/web
+                
+    beast:
+        gui:
+            open:                     
+#                - bee.alveolus.modules.Bware.SymphoBee._.Routing.Sombrero.Router.DynamicSombreroRouter                       
+#                - bee.alveolus.modules.Bee.Notation.String.StringParser.ExpressionDiscoverer                       
+                - bee.alveolus.modules.Bee.Component.Html.Crawler.CrawlerQuery.Syntax.Util                       
+                
+                
+    kick:
+        cmsParams:
+            modules:
+                crud: 
+                    _class: WebModule\Pragmatik\Crud\Komin\Kick\Module\CrudModule
+                    _args: 
+                        params:
+                            table: jettmp.nassap_employe
+            zones:
+                main:
+                    - crud
+            options:
+                allowPhp: true
+#                defaultTpl: [app]/tpl/cms/home.php
+                defaultTpl: /Volumes/Macintosh HD 2/web/Komin>/service création/projets/bee/developer/bee/approot0/bam/bam1/app/tpl/cms/home.php
+    repository:
+        server:
+            rootDir: [root]/repo
+    user:
+        userToken:
+            userList:
+                users:
+                    ling:
+                        login: ling
+                        pass: ling
+                        badges:
+                            - admin
+                loginKey: login
+                passKey: pass
+            user2tokenAdaptor:
+                badgesKey: badges
+                userDataKeys: [login]
+            badgesTree:
+                admin:
+                    - moderator
+                moderator:
+                    - dominator
+                    - applicator
+                    
+pragmatik:                    
+    crud:
+        server:
+            args:
+                modeHandlers:
+                    auto:
+                        _class: WebModule\Pragmatik\Crud\Server\Ascp\ModeHandler\AutoAdminModeHandler
+                        _args:
+                            options:
+                                rowActionHandlers: null
+                                granter: @komin.user.granter         
+                                databases: 
+                                    webtv: db1
+                                items:
+                                    *.*/*: []
+                                        badges: []
+                                        actions: null
+                                        rowActions: null
+                                        tips:
+                                            nom: Je suis trop gros pour être un tip, tu peux pas me mettre un caption pluto ?
+                                        validation: 
+                                            nom:
+                                                minLength:
+                                                    min: 2
+                                            date:
+                                                minLength:
+                                                    min: 2
+                                        defaultColumnsValues:
+                                            description: coucou
+                                        columns:
+                                            - prenom
+                                            - nom
+                                        columnsForm: 
+                                            - prenom
+                                            - nom
+                                        columnsFormUpdate: 
+                                            - description                                            
+                                            - titre
+                                            - date
+                                            - id                                                                                        
+                                        excludedColumns: 
+                                            - valeur
+                                            - repeat_info
+                                
+        util:
+            mysqlDumperOptions:
+                dir: /tmp/pragmatik/crud/mysqldumps
+                dbUser: §my.dbUser§
+                dbPass: §my.dbPass§
+                mysqlDumpPath: /usr/local/mysql/bin/mysqldump
+                
+            tableInfoOptions:
+                cacheDir: /tmp/pragmatik/crud-tableinfoutil

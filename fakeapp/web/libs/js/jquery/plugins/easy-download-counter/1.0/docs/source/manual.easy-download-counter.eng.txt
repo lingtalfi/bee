@@ -1,0 +1,248 @@
+Easy download counter - clic tracker
+=========================
+2014-10-19
+
+
+
+
+
+
+Presentation
+----------------
+
+Easy Download counter - clic tracker (edc) is a jquery plugin that tracks
+the number clicks on links (download links, or regular links).
+It can also display the number of downloads for each link.
+Last but not least, it comes with a simple statistic visualization interface.
+
+Edc is very easy to setup, and even intuitive for experimented users.
+
+The counters memorization uses the filesystem only, so that the plugin can be immediately ready to use
+(we don't need to setup a database, for instance);
+we simply need to ensure that the stats folder has the write permissions, see below.
+
+In order to collect statistic for a given link, we need to assign an identifier to that link;
+the number of clicks is then collected, and the data are organized in years, months and days.
+
+
+
+Installation
+--------------
+The first and only thing to do for the setup is to give the write permissions to the
+stats folder: easy-download-counter/1.0/service/stats.
+This folder will contain all the data collected when the users click your links.
+Data are collected in the form of simple text files.
+If you don't have the write permissions, the plugin will not be able to memorize the number of clicks,
+and hence will be useless, and you will have some errors when someone tries to click your links.
+
+In unix systems, if your website is located in the /mysite/www folder, you can type the following command in
+a terminal:
+
+
+	sudo chmod -R 777 /mysite/www/easy-download-counter/1.0/service/stats
+
+
+And voilà!
+That's it for the setup ;)
+You can now test the jquery plugin.
+
+
+
+Demo
+------
+(you should have read the installation section first)
+Open the easy-download-counter/1.0/demo.php file with a web server.
+
+On the page that shows up, you will see 2 example links with counters,
+and one more link that opens the statistics visualization interface in a new tab.
+In order to give you a realistic overview of the statistics visualization interface, I deliberately
+added some fake data. The graphs are prettier with more data.
+When you launch your website in production, you can simply delete the content of the
+stats folder (easy-download-counter/1.0/service/stats),
+to get rid of all the fake data.
+If you inadvertently delete the stats folder itself, remember to give it write permissions.
+
+
+
+
+Quickstart
+--------------
+(you should have read the installation section first)
+Paste the following code in an html file and open it with a webserver (or adapt it for your application):
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="easy-download-counter.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Chant du soleil"</a>
+	<br />
+	<a data-edc-id="score-nora" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Nora"</a>
+
+
+	<script>
+		(function ($) {
+
+
+			$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+			$(document).ready(function () {
+				$('.countdownload').easyDownloadCounter();
+			});
+
+
+		})(jQuery);
+
+	</script>
+
+
+	</body>
+	</html>
+
+
+
+You will then see two links; they are download links.
+At the javascript level, the following line is important:
+
+	$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+
+This line indicates the location of the main edc service to the jquery plugin.
+This service is responsible for updating the statistics in your filesystem.
+If you run your own website, you will probably want to update this value.
+
+
+We can also add counters to show the number of downloads, like in the following example:
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="easy-download-counter.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Chant du soleil"</a>
+	Downloads: <span data-edc-counter="score-chantdusoleil"></span>
+	<br />
+
+	<a data-edc-id="score-nora" class="countdownload" href="download/chant-soleil-2014-09-27-sample.pdf">Download the score "Nora"</a>
+	Downloads: <span data-edc-counter="score-nora"></span>
+
+	<script>
+		(function ($) {
+
+
+			$.fn.easyDownloadCounter.settings.serviceUrl = 'service/edc-service.php';
+			$(document).ready(function () {
+				$('.countdownload').easyDownloadCounter();
+			});
+
+
+		})(jQuery);
+
+	</script>
+
+
+	</body>
+	</html>
+
+
+The most important thing to take care of is that the value of the data-edc-counter attribute (of the counter)
+is exactly the same as the value of the data-edc-id attribute (of the link).
+
+
+
+
+
+Statistics visualization
+------------------------------
+To visualize the statistics, open the visualizer/visualizer.php page.
+It will open a simple graphical user interface where you can have an overview of the downloaded links.
+
+
+
+
+
+To update the counter values manually
+---------------------------------------------
+Aha, so you want to cheat?
+Ok, all the stats are located in the service/stats folder.
+
+Then, it depends on what exactly you want to modify.
+The data used by the counters, and the data collected upon a clic are not located at the same location,
+that's because of technical speed optimization reasons.
+
+If you want to update the data displayed by the counters, and if abc is the identifier of your link,
+then you want to update the value in the service/stats/abc.txt file.
+
+On the other hand, if you want to update the data displayed by the statistics visualization interface,
+you want to update the data located in the service/stats/abc folder.
+
+
+Oh, and if you ever want to reset all the stats at once, you can simple remove the content of the stats folder
+(if you are not sure of what you're doing, just consider making a copy of that folder before you do so),
+it will be recreated automatically by the system.
+
+
+
+
+The jQuery plugin: how it works in details
+----------------
+When the plugin is applied to a link, it will detect the pression of the left mouse button on that link.
+
+You will set a special data-edc-id attribute on the link, which represents the link identifier.
+This identifier is used to distinguish which link has been clicked when collecting or visualizing the data
+in/from the filesystem.
+
+It is also possible to create a counter for any link.
+A counter is any html element with the data-edc-counter attribute on it, and the value of this attribute
+has to be exactly the same as the value of the data-edc-id attribute of the link to which the counter is related.
+
+For instance, the following code create a link and a related counter, and the identifier is score-chantdusoleil:
+
+	<a data-edc-id="score-chantdusoleil" href="/link/to/chantdusoleil.pdf">Download the score</a>
+	<br>
+	Downloaded: <span data-edc-counter="score-chantdusoleil"></span>
+
+
+The counter value is automatically updated when the page starts loading, and also when the user clicks a (edc) link.
+
+The link type doesn't matter, we can use a download link or a regular link if we want.
+For instance if we want to track the number of links for a regular link, we can use the following code:
+
+	<a data-edc-id="website-partner-example" href="http://www.example.com">Go to the example site</a>
+
+We could also put a counter on this link, but in this example, the link is a tracker and the user shouldn't be aware of the number
+of clicks on it.
+
+
+
+One last word
+------------------
+So that's it, I hope this plugin will save you some time.
+Be sure to ask any questions that makes sense to you, if it's not clear in the doc, I will try my best to answer.
+
+
+Have fun!
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,231 @@
+Easy download counter
+Easy link click counter
+Easy download and clic counter
+Easy download and clic tracker and counter
+Easy download counter - clic tracker
+=========================
+2014-10-18
+
+
+
+
+
+Présentation
+----------------
+
+C'est un plugin jquery qui mémorise le nombre de clicks sur un lien en particulier.
+On peut l'appliquer sur tous les liens que l'on souhaite très facilement.
+
+La mémorisation du compteur se fait par le système de fichiers, de cette manière,
+on n'a pas besoin de mettre en place une base de données, et le système est opérationnel immédiatement
+(on doit juste vérifier que le dossier des stats a les bonnes permissions, voir plus bas).
+Chaque lien a son propre identifiant, et les données sont organisées en années, mois et jour.
+
+
+Ce système inclut également en bonus une page php, indépendante du plugin jquery, qui présente
+des statistiques générales sur les downloads, voir screenshot.
+
+
+Enfin, j'ai ajouté un service qui permet de mettre à jour un compteur (qu'on place en général à côté du lien)
+de downloads.
+
+Ce système est développé à l'origine pour compter le nombre de downloads, mais on peut
+également l'utiliser pour compter le nombre de clics sur un lien normal par exemple (par exemple
+pour avoir une idée du nombre de personnes ayant cliqué sur ce lien).
+
+
+
+
+
+
+
+
+Installation
+--------------
+Créez un dossier stats où vous voulez dans le site et donnez lui les droits d'écriture.
+
+Par exemple sur unix, si votre site se trouve dans /mysite/www, vous pouvez taper les commandes suivantes
+depuis une console:
+
+	mkdir -p /mysite/www/private/stats
+	sudo chmod -R 777 /mysite/www/private/stats
+
+
+
+Vous pouvez maintenant tester le plugin jquery.
+Collez le code suivant dans un fichier html et ouvrez le dans un navigateur, ou bien adaptez le pour votre application:
+
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="/downloads/scores/chant-du-soleil.pdf">Download the score "Chant du soleil"</a>
+	<a data-edc-id="score-nora" class="countdownload" href="/downloads/scores/nora.pdf">Download the score "Nora"</a>
+
+
+	<script>
+		(function ($) {
+			$(document).ready(function () {
+		        $.fn.easyDownloadCounter.settings.serviceUrl = '/lib/js/easy-download-counter/1.0/service/edc-service.php';
+                $(document).ready(function () {
+                    $('.countdownload').easyDownloadCounter();
+                });
+			});
+		})(jQuery);
+	</script>
+
+
+	</body>
+	</html>
+
+
+
+Vous verrez alors deux liens permettant de télécharger des partitions.
+
+
+On peut également ajouter des compteurs indiquant le nombre de downloads, voyez l'exemple ci-dessous:
+
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<title>Html page</title>
+	</head>
+
+	<body>
+
+
+	<a data-edc-id="score-chantdusoleil" class="countdownload" href="/downloads/scores/chant-du-soleil.pdf">Download the score "Chant du soleil"</a>
+	Downloads: <span data-edc-counter="score-chantdusoleil"></span>
+	<br>
+	<a data-edc-id="score-nora" class="countdownload" href="/downloads/scores/nora.pdf">Download the score "Nora"</a>
+	Downloads: <span data-edc-counter="score-nora"></span>
+
+
+	<script>
+		(function ($) {
+			$(document).ready(function () {
+		        $.fn.easyDownloadCounter.settings.serviceUrl = '/lib/js/easy-download-counter/1.0/service/edc-service.php';
+                $(document).ready(function () {
+                    $('.countdownload').easyDownloadCounter();
+                });
+			});
+		})(jQuery);
+	</script>
+
+
+	</body>
+	</html>
+
+
+Il faut juste bien faire attention à ce que la valeur de data-edc-counter (du compteur)
+soit la même que la valeur de data-edc-id (du lien).
+
+
+
+
+Implémentation
+---------------
+$.fn.easyDownloadCounter.settings.serviceUrl = '/lib/js/easy-download-counter/1.0/service/edc-service.php';
+$(.download).easyDownloadCounter();
+
+
+
+- stats
+----- monIdentifiant
+--------- 2014
+------------- 01.txt
+----------------- 2014-01-01: 56
+----------------- ...
+------------- ...
+--------- ...
+----- ...
+
+
+Pour le compteur:
+
+<a data-edc-id="score-chantdusoleil" class="countdownload" href="/downloads/scores/chant-du-soleil.pdf">Download the score "Chant du soleil"</a>
+<div>Downloaded: <span data-edc-counter="score-chantdusoleil"></span></div>
+
+La valeur de data-edc-counter doit être la même que la valeur de data-edc-id, cela permet d'update le compteur dynamiquement.
+
+
+
+Service de consultation des statistiques, pour les compteurs
+-------------------------------------------------------------
+Il peut y avoir plusieurs compteurs sur une même page.
+Pour économiser des requêtes serveur, notre plugin ne va effectuer qu'une seule requête,
+au chargement de la page, pour mettre à jour tous les compteurs présents.
+Ensuite, les compteurs sont incrémentés dynamiquement à chaque fois que leur lien est cliqué.
+
+Pour accélerer la collecte des statistiques par identifiant, nous allons en fait utiliser un fichier
+qui contiendra le nb de clics total pour un identifiant donné.
+Cela nous évite de parser toutes les années, tous les mois, et de faire la somme de tous les jours du mois,
+et ce pour chaque identifiant.
+
+
+
+
+
+
+Stats notes:
+-----------------
+- première vue: on doit pouvoir comparer les liens les plus downloadés,
+donc tous les identifiers côte à côte, avec un chiffre par année.
+
+								2014			2015
+------------------------------------------------------------------------------------
+- chantdusoleil.score.pdf:   	65				98
+- ahvousdiraisje.score.pdf:   	94				165
+- ....score.pdf:   				120				340
+
+
+Ensuite, si on clique sur le nom de l'identifiant,
+on affiche la page de détails, en-dessous, via ajax.
+
+
+chantdusoleil.score.pdf:
+
+
+2014
+--------------------------------------------------
+01	02	03	04	05	06	07	08	09	10	11	12
+									*	*	*
+ 			*	*				*
+	*	*			*		*
+*						*
+
+
+2015...
+
+
+
+
+identifier: [a-zA-Z0-9-._]
+
+
+
+
+Features
+-----------
+- s'applique aussi bien à un lien de download qu'à un lien classique, et sans interférence au niveau du lien de download.
+- setup du système en une ligne de commande
+- facile à mettre en place (6 lignes de code, plus 1 ou 2 lignes dans le head)
+- on a le contrôle total sur l'apparence des liens et des compteurs
+- collecte des stats basée sur les fichiers (facile à modifier, pas d'installation de base de données)
+- interface de visualisation des stats à deux niveaux: année, mois
+- code simple et facile à faire évoluer (par exemple pour ajouter les stats par jour)
+
+
+
+
+

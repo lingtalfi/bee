@@ -1,0 +1,23 @@
+komin:
+    user:
+        granter:
+            _class: WebModule\Komin\User\Granter\Granter
+        userToken:
+            _class: WebModule\Komin\User\UserToken\UserToken
+            _args:
+                userList:
+                    _class: WebModule\Komin\User\UserList\ArrayUserList
+                    _args:
+                        users: §komin.user.userToken.userList.users§
+                        options:
+                            loginKey: §komin.user.userToken.userList.loginKey§
+                            passKey: §komin.user.userToken.userList.passKey§
+                user2TokenAdaptor:
+                    _class: WebModule\Komin\User\User2TokenAdaptor\User2TokenAdaptor
+                    _args:
+                        userDataKeys: §komin.user.userToken.user2tokenAdaptor.userDataKeys§
+                        badgesKey: §komin.user.userToken.user2tokenAdaptor.badgesKey§
+                badgeList:
+                    _class: WebModule\Komin\User\BadgeList\BadgeList
+                    _args:
+                        badgesTree: §komin.user.userToken.badgesTree§

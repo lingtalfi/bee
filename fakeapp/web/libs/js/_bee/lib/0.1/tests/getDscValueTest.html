@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MicroParser test</title>
+    <link rel="stylesheet" href="/public/js/jquery/qunit/1.12/qunit-1.12.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="/public/js/bee/lib/0.1/bee-0.1.js"></script>
+<script src="/public/js/jquery/qunit/1.12/qunit-1.12.0.js"></script>
+<script>
+
+
+    test("getDscValue", function () {
+
+        var aoMainContext = {
+            aa: 111,
+            b: 222,
+            c: {
+                poo: 555
+            }
+        };
+
+        var aoSecondContext = {
+            aa: 222,
+            dd: {
+                mi: {
+                    doo: 45
+                }
+            }
+        };
+
+        Bee.FLAG_TESTMODE = true;
+
+
+        //------------------------------------------------------------------------------/
+        // DSC NOTATION SPEC
+        //------------------------------------------------------------------------------/
+        //------------------------------------------------------------------------------/
+        // DEFAULT FEATURE
+        //------------------------------------------------------------------------------/
+        var res = Bee.getDscValue('aaa', aoMainContext);
+        equal(res, "aaa");
+
+        var res = Bee.getDscValue('a$aa;a', aoMainContext);
+        equal(res, "a111a");
+
+        var res = Bee.getDscValue('a$aa;a$aa;', aoMainContext);
+        equal(res, "a111a111");
+
+        var res = Bee.getDscValue('a$aa;a$aa;$b;', aoMainContext);
+        equal(res, "a111a111222");
+
+        // <variable tag> as <host>
+        var res = Bee.getDscValue('$c;', aoMainContext);
+        deepEqual(res, {poo: 555});
+
+
+
+        //------------------------------------------------------------------------------/
+        // CONTEXTS
+        //------------------------------------------------------------------------------/
+        var res = Bee.getDscValue('$1:aa;', aoMainContext, aoSecondContext);
+        equal(res, 222);
+
+        var res = Bee.getDscValue('$1:aa; and $0:aa; and $aa;', aoMainContext, aoSecondContext);
+        equal(res, '222 and 111 and 111');
+
+
+        //------------------------------------------------------------------------------/
+        // DOT NOTATION
+        //------------------------------------------------------------------------------/
+        var res = Bee.getDscValue('a$aa;a$c.poo;', aoMainContext);
+        equal(res, "a111a555");
+
+
+        //------------------------------------------------------------------------------/
+        // SOME MORE CHECKING
+        //------------------------------------------------------------------------------/
+        var res = Bee.getDscValue("$1:dd.mi;", aoMainContext, aoSecondContext);
+        deepEqual(res, {doo: 45});
+
+
+        //------------------------------------------------------------------------------/
+        // TESTING ERRORS
+        //------------------------------------------------------------------------------/
+        // array injection in string
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue('a$c;l', aoMainContext);
+        equal(res, 'a$c;l');
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 1);
+
+
+        // unexisting context in strict mode
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue('$3:aa;', aoMainContext, 'strict');
+        equal(res, '$3:aa;');
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 1);
+
+
+        // unexisting context in default mode
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue('$3:aa;', aoMainContext);
+        equal(res, '');
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 0);
+
+
+        // undefined variable should not throw error even in strict mode
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue('$xxxa;', aoMainContext, 'strict');
+        equal(res, '$xxxa;');
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 0);
+
+        // undefined variable in default mode is stripped out
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue('$xxxa;', aoMainContext);
+        equal(res, '');
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 0);
+
+
+        //------------------------------------------------------------------------------/
+        // NOT DSC NOTATION SPEC
+        //------------------------------------------------------------------------------/
+        // testing array in strict mode
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue({
+            doo: 'any value',
+            poo: '$aa;',
+            dop: {
+                ok: '$1:dd.mi;',
+                ko: '$1:dd\\.mi;' // left as is (does not exist)
+            }
+        }, aoMainContext, aoSecondContext, 'strict');
+        deepEqual(res, {
+            doo: 'any value',
+            poo: 111,
+            dop: {
+                ok: {doo: 45},
+                ko: '$1:dd\\.mi;'
+            }
+        });
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 0);
+
+
+        // testing array in normal mode
+        Bee.resetTestErrors();
+        var res = Bee.getDscValue({
+            doo: 'any value',
+            poo: '$aa;',
+            dop: {
+                ok: '$1:dd.mi;',
+                ko: '$1:dd\\.mi;' // left as is (does not exist)
+            }
+        }, aoMainContext, aoSecondContext);
+        deepEqual(res, {
+            doo: 'any value',
+            poo: 111,
+            dop: {
+                ok: {doo: 45},
+                ko: ''
+            }
+        });
+        var aErrors = Bee.getTestErrors();
+        equal(aErrors.length, 0);
+
+
+    });
+
+
+</script>
+</body>
+</html>

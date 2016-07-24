@@ -1,0 +1,29 @@
+Compatibility notes
+======================
+2014-11-21
+
+
+
+I'm not a big fan of coding for different browsers.
+Since my favourite browser is firefox, I usually only develop using firefox, so that I can develop faster.
+
+The obvious downside of this approach is that what I code might not work in other browsers.
+
+Usually, I noticed that it's quite easy to make a script work for chrome.
+In the case of MacGuiMenu, I had to change one function to have it okay, but not perfect, see the table below.
+
+
+
+
+
+- Firefox (33.1): Works perfectly
+- Chrome (38.0.2125.122): Works ok
+            It works almost perfectly, except that for the shortcut cmd+N in specific (other shortcuts seems to work),
+            chrome always takes precedence, I don't know why.
+- Safari: assuming the same as chrome, not tested
+- Others: not tested
+
+
+
+
+

@@ -1,0 +1,81 @@
+/*******************************
+GENERAL
+*******************************/
+header {
+    border-bottom: 1px solid #ccc;
+}
+
+.maininterface {
+
+}
+
+.cmd-output {
+    float: left;
+    width: 45%;
+    min-height: 300px;
+    background: #eee;
+    border: 1px solid #ccc;
+    margin-top: 1%;
+    overflow: scroll;
+    white-space: pre-wrap;
+}
+
+.loadertable {
+    height: 100%;
+    width: 100%;
+    vertical-align: middle;
+    text-align: center;
+}
+.loadertable, .loadertable tr {
+    height: 100%;
+    width: 100%;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.rightmenucontainer {
+    border-left: 1px solid #eee;
+    float: left;
+    margin-left: 1%;
+    padding-left: 1%;
+    padding-top: 1%;
+    width: 50%;
+}
+
+ul.hidecats > li {
+    display: none;
+}
+
+ul, li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul li {
+    margin-left: 20px;
+}
+
+ul.topmostul > li {
+    margin-left: 0px;
+}
+
+.cat-toggle, .description-toggle {
+    display: inline-block;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.description {
+    background: none repeat scroll 0 0 #eee;
+    border: 1px solid #eee;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 30px;
+    white-space: nowrap;
+    overflow: auto;
+}

@@ -1,0 +1,226 @@
+Tutorial: create topmenu
+============
+2014-11-21
+
+
+
+Hi, I'm lingtalfi.
+In this tutorial, we are going to create part of the topmenu I used for the macGuiMenu demo video.
+
+Here is the final result (t).
+
+
+In order to successfully complete this tutorial, you will need to know how to use both html, javascript and jquery.
+
+
+Let's start by downloading the startup file, and open it in your favourite editor.
+I will use phpStorm.
+
+This file contains a basic layout, without the javascript code.
+We will add the javascript code as we complete this tutorial.
+For now let's just open the file in a browser and see how it looks like.
+
+
+
+
+(montrer le résultat après chaque étape)
+
+0.
+    We will start by adding the macGuiMenu library and its dependencies to our html page
+
+1.
+    Let's now create the jZone1 variable to hold the zone that will contain our topmenu;
+    then we will create the topmenu using the createTopMenu method.
+
+    Each element of the menu has 2 entries:
+        - pid, which stands for parent id
+        - label
+
+
+    In this tutorial, we will mimic mac's way of organizing application menus.
+    So our first element will be the home, and we will even use the apple symbol, using
+    the html entity: &#63743;
+
+    The second element will be the name of our application: myApp.
+    We will create a last element with pid equals to file.
+
+
+2.
+    In this step, we will create the first panel, then define which action to execute when an item is triggered,
+    then initialize the top menu, and finally activate keyboard shortcuts.
+
+    To create a panel, we can use the createStandardPanel method.
+    This method creates a panel with standard items.
+    If we wanted a panel with more complex items, we would have to use another method,
+    but for this tutorial it's ok, since we are going to use only standard items.
+
+    The createStandardPanel method returns a jquery object, so we can directly append its result to the body.
+
+    By default, a created panel is hidden, so we can add as many panels as we want without worrying about where to place them.
+
+    When you create a panel, you have to choose a panel identifier.
+    This identifier has to be unique for the current web page.
+
+    Remember that each topmenu item has a unique identifier called pid?
+    Each time the user will click on a topmenu item, macGuiMenu will search for a panel with that pid.
+
+    So here we are going to create a panel for every item of the topmenu, and the identifier of each panel
+    will be the corresponding topmenu item's pid.
+
+    Let's start with the first panel, its uid will be home.
+
+    When defining a panel, the two most important entries are::
+            - uid: the panel identifier
+            - items: an array of either standard items or  horizontal rules
+
+
+    A standard item, by default, contains the following properties:
+
+        - uid: null
+        - checked: false
+        - icon: null
+        - label: null
+        - dialog: false
+        - child: null
+        - shortcut: null
+        - active: true
+
+
+    uid is an unique item identifier.
+    It is your responsibility as a developer to ensure that every item has a unique uid for the current web page.
+
+    checked indicates whether or not the item has the checkmark symbol on the left.
+
+    icon is the url of the icon
+
+    label is the text of the item
+
+    dialog indicates whether or not the item will create a dialog window.
+            Actually this option only adds 3 dots after the label, and the implementation of the dialog is left to the developer.
+
+    child: the child panel uid, if you use nested panels
+
+    shortcut: the shortcut to execute the item
+
+    active: to activate or deactivate an item.
+                If an item is inactive, it cannot be executed.
+
+
+
+
+    Let's create our first item. I will add a house icon on the left.
+
+    The value of the icon property is the value of the html src attribute of the image in the html code.
+    I will also disable this item using active: false.
+
+    The second item will be "software update" (t), it uses a dialog, so we will set the dialog property to true.
+
+    Then, we will add an horizontal rule, by simply writing hr (t).
+
+    Finally, let's create an item with a shortcut.
+
+
+    Now that our panel is ready, we will create the action that should be used when an item is executed.
+    An important thing to understand is that in MacGuiMenu, there is only ONE function to handle all items on the
+    current page, and that is the executeItem method.
+    Having only one method for all items makes it very easy to understand.
+    In this tutorial, our action for all items will be to display the uid of the item next to the apple at the middle
+    bottom of the screen (t).
+
+    The initTopMenu method will initiaize the behaviour of the topmenu.
+
+    Since we use shortcuts, we have to tell MacGuiMenu to use shortcuts.
+    To do so, we have to tell MacGuiMenu which area should the shortcuts be effective in.
+    Using this technique allows to override the browser's shortcuts only for a specific area.
+
+    In this tutorial, the iMac screen will be our context.
+    It is composed of one zone: which is the zone held by the jZone1 variable.
+
+    We will use the addShortcutZone method to bind that zone to the 'all' context.
+    The all context is the default context.
+
+    Every time we create a panel using the createStandardPanel,
+    if we don't specify a context, the default context will be used.
+
+    Since from the beginning of this tutorial, we've never specified a context,
+    the all context has been used for all our panels.
+
+    (
+    So using the addShortcutZone method, we basically say that all the items that we have created so far
+    are available only inside of the zone jZone1 (s).
+    )
+
+    The listenToShortcuts method will tell MacGuiMenu to start listening to the shortcuts.
+
+
+    Let's check our work so far.
+    Click on the apple, you should see the first panel popping out.
+    We will create the other panels later.
+    Now click on the first item and check that its uid appears next to the apple at the bottom middle of the screen.
+
+
+    So now, with the mouse INSIDE the screen,
+    you can try the shortcut ctrl+a, and check that the corresponding action is executed.
+
+    Click the first item again, to change our command log, then put your mouse OUTSIDE the screen
+    and check that ctrl+a doesn't execute the action.
+
+    Before we start creating the other panels, did you notice the symbol used to represent the control key?
+    This is how the control key is represented on MacOs.
+
+    If like me you are a mac user, it will probably be ok for you.
+    However for others, it is possible to choose how every special symbol is represented by MacGuiMenu.
+    If you are interested in this topic, there are two methods that you can investigate:
+
+    - setStandardShortcutsTable
+    - setStandardShortcutsTableEntry
+
+
+    So now let's create the two other panels.
+
+    Let's create the myApp panel.
+    This panel will contain nested panels.
+    Let's create two items A and B.
+    To make a child panel going out of item B, set the child property to the uid of the child panel.
+    I will call mine subpanel (s).
+
+    Now let's create that subpanel (s),
+    you can create the items you want, I will use very basic items.
+
+    We can now test that the subpanel opens when we hover "item B" with the mouse.
+
+    Now that you've understand the mechanism for creating a panel and a subpanel,
+    it should be easy for you to create the third panel.
+
+    Create the third panel with uid equals to file, and the items that you want.
+
+    Let's check our work again (s).
+
+    That's it, this is the end of this first tutorial.
+    I hope it was useful.
+
+
+    Thanks for watching, bye.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

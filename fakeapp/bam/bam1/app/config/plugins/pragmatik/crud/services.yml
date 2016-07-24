@@ -1,0 +1,15 @@
+pragmatik:
+    crud:
+        server:
+            _class: WebModule\Pragmatik\Crud\Server\Ascp\CrudServer
+            _args: §pragmatik.crud.server.args§
+        util:
+            mysqlDumper:
+                _class: WebModule\Pragmatik\Crud\Util\MysqlDumper\MysqlDumper
+                _args:
+                    options: §pragmatik.crud.util.mysqlDumperOptions§
+            tableInfo:
+                _class: WebModule\Pragmatik\Crud\Util\TableInfo\TableInfoUtil
+                _args:
+                    options: §pragmatik.crud.util.tableInfoOptions§
+                    

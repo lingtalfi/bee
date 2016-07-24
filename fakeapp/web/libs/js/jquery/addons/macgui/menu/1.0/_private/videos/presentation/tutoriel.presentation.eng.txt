@@ -1,0 +1,152 @@
+MacGuiMenu Presentation (tutorial)
+=======================
+2014-11-21
+
+
+(v): exemple vidéo
+(s): montrer avec un geste de la souris
+(t): titre dans la vidéo
+
+
+
+
+Hi, I'm lingtalfi.
+In this video, I will give you a brief overview of what macGuiMenu is and what it can do for you.
+
+
+
+The menu types
+-----------------------
+
+We can use MacGuiMenu to create two different types of menu:
+
+- an horizontal menu, also called topmenu, that we use to group the main functions of an application (v)
+- or a contextual menu, which opens when the user right clicks the screen, or part of the screen.
+        This type of menu adds more functionality to the gui, depending on where the user clicked (v)
+
+
+- a left clic menu, which appears when we left click a button.
+      We can customize the position of the menu in relation to the button.
+
+
+We can bind a left clic menu and a right clic menu to the same element (t).
+
+
+
+Nested panels (t)
+----------------
+
+MacGuiMenu, as the name suggests, is inspired from MacOs.
+Visually, I tried to reproduce the same look and feel, so that we have that recognizable blue background
+when we hover an item with the mouse (v).
+
+Besides the visual appearance, macGuiMenu's panel behaviour also comes from MacOs.
+So, an item can contain other panels, and so on.
+
+
+
+Standard item (t)
+----------------
+
+On the MacOs, most of the items have the same look.
+MacGuiMenu takes advantage of this and uses the concept of "standard item" to ease the creation of panels containing such items.
+In MacGuiMenu, a standard item is composed of the following elements:
+
+- a checkmark (s)
+- an icon (s)
+- a label (s)
+- 3 dots after the label, that's only if executing that item would open a dialog box (s)
+- a black arrow indicating that this item contains a child panel
+- a shortcut
+
+
+macGuiMenu api (t)
+------------------------
+
+MacGuiMenu Api lets the developer interact with panels and items dynamically.
+Here are a few things that the developer can do programmatically:
+
+- update the item's icon (v)
+- update the item's checkmark (v)
+- update the item's label (v)
+- bind a child panel to an item (v)
+- unbind a child panel from an item (v)
+- update the item's shortcut(v)
+- add an item (v)
+- remove an item (v)
+- add a topmenu item (v)
+- create and open a whole panel dynamically (v)
+
+
+
+Keyboard Shortcuts (t)
+----------------------------
+
+For being a big fan of keyboard shortcuts, it was my pleasure to implement shortcuts in macGuiMenu.
+Shortcuts are immediately available to the gui as we create the panels using the macGuiMenu Api.
+In this demo, whenever an item action is triggered, its identifier will be displayed next to the apple at the middle of the screen (s).
+
+I can either use the mouse click, or the corresponding keyboard shortcut to execute an item's action.
+(cmd+c, ou cmd+v) (t).
+
+
+
+Controlling the effective zones for shortcuts and contextual menus
+----------------------------------------------------------------------
+MacGuiMenu uses the concept of context to enclose the shortcuts into a zone.
+A context is simply a zone within which shortcuts are effective.
+Let me demonstrate this using the "cmd+," shortcut.
+In this demo, I set the shortcut context to the screen of this iMac (s).
+
+If I'm OUTSIDE the zone, "cmd+," would execute the browser's action for "cmd+," which in my case is: open the preferences panel.
+However if I'm INSIDE the zone, since I have the "cmd+," shortcut defined with MacGuiMenu,
+the macGuiMenu action will be executed, overriding the browser's shortcut, and as long as my mouse is inside the zone (t).
+
+Similarly, we can define which zone a contextual menu can be created from.
+INSIDE this zone, the contextual menu created with macGuiMenu pops up.
+OUTSIDE this zone, that's the browser's contextual menu that pops up (t).
+
+
+
+Outro
+--------
+So that's it. This video is now over.
+If you're a developer, and you are interested in using this menu,
+you will find video tutorial links on this page.
+
+
+Warning, I have used firefox to develop macGuiMenu, so it's very likely that macGuiMenu will have issues with other browsers.
+If you are interested by compatibility issues, please visit the compatibility notes page, you will find the link on this page.
+
+Also, macGuiMenu uses jquery library.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

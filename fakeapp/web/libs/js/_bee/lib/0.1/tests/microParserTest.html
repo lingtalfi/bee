@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MicroParser test</title>
+    <link rel="stylesheet" href="/public/js/jquery/qunit/1.12/qunit-1.12.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="/public/js/bee/lib/0.1/bee-0.1.js"></script>
+<script src="/public/js/jquery/qunit/1.12/qunit-1.12.0.js"></script>
+<script>
+
+
+    test("parse", function () {
+
+
+        var parser = Bee.getArgumentsMicroParser();
+
+
+        var res = parser.parse('aa');
+        deepEqual(res, ['aa'], " default string");
+
+        var res = parser.parse('"aa"');
+        deepEqual(res, ['aa'], "protection quotes are removed");
+
+
+        var res = parser.parse('"aa "');
+        deepEqual(res, ['aa '], "protection quotes can enclose space");
+
+
+        var res = parser.parse('"aa\\"a"');
+        deepEqual(res, ['aa"a'], "protection char has to be escaped inside a protection zone");
+
+
+        var res = parser.parse('true');
+        deepEqual(res, [true], "true");
+
+
+        var res = parser.parse('"true"');
+        deepEqual(res, ['true'], "true");
+
+        var res = parser.parse('false');
+        deepEqual(res, [false], "false");
+
+
+        var res = parser.parse('"false"');
+        deepEqual(res, ['false'], "false");
+
+
+        var res = parser.parse('null');
+        deepEqual(res, [null], "null");
+
+
+        var res = parser.parse('"null"');
+        deepEqual(res, ['null'], "null");
+
+
+        var res = parser.parse('a,b,c');
+        deepEqual(res, ['a', 'b', 'c'], "comma separated list");
+
+
+        var res = parser.parse('a  ,  b  ,  c');
+        deepEqual(res, ['a', 'b', 'c'], "comma separated list with interspaces");
+
+
+        var res = parser.parse('a, [], b');
+        deepEqual(res, ['a', {}, 'b'], "comma separated list with empty array");
+
+
+        var res = parser.parse('a, [doo, foo], b');
+        deepEqual(res, ['a', {0: 'doo', 1: 'foo'}, 'b'], "comma separated list with array and values");
+
+
+        var res = parser.parse('a, [doo  , foo], b');
+        deepEqual(res, ['a', {0: 'doo', 1: 'foo'}, 'b'], "comma separated list with array and values and interspaces");
+
+
+        var res = parser.parse('a, [true  , false, null], b');
+        deepEqual(res, ['a', {0: true, 1: false, 2: null}, 'b'], "comma separated list with special values");
+
+
+        var res = parser.parse('a, ["true"  , "false", "null"], b');
+        deepEqual(res, ['a', {0: 'true', 1: 'false', 2: 'null'}, 'b'], "comma separated list with special values as literals");
+
+
+        var res = parser.parse('a, ["do\\"o"  , foo], b');
+        deepEqual(res, ['a', {0: 'do"o', 1: 'foo'}, 'b'], "comma separated list with array and  protected value");
+
+
+        var res = parser.parse('a, ["do\\"o"=6  , foo], b');
+        deepEqual(res, ['a', {'do"o': 6, 0: 'foo'}, 'b'], "comma separated list with array and protected key");
+
+
+        var res = parser.parse('a, ["do\\"o"=true  , foo=false, men= null], b');
+        deepEqual(res, ['a', {'do"o': true, foo: false, men: null}, 'b'], "comma separated list with array with keys and special values");
+
+
+        var res = parser.parse('a, ["do\\"o"="true" , foo="false", men= "null"], b');
+        deepEqual(res, ['a', {'do"o': 'true', foo: 'false', men: 'null'}, 'b'], "comma separated list with array with keys and special values as literals");
+
+
+        var res = parser.parse('a, ["do\\"o"=6  , foo=45], b');
+        deepEqual(res, ['a', {'do"o': 6, foo: 45}, 'b'], "comma separated list with array and mixed key");
+
+
+        var res = parser.parse('a, ["do\\"o"="6\ jo"  , foo=45], b');
+        deepEqual(res, ['a', {'do"o': "6\ jo", foo: 45}, 'b'], "comma separated list with array and mixed key and mixed value");
+
+
+        var res = parser.parse('a, ["do\\"o"="6,[]jo"  , foo=45], b');
+        deepEqual(res, ['a', {'do"o': "6,[]jo", foo: 45}, 'b'], "comma separated list with protected special chars in value");
+
+
+        var res = parser.parse('a, [5= 45, 78=sdpo  ], b');
+        deepEqual(res, ['a', {5: 45, 78: 'sdpo'}, 'b'], "comma separated list with numerical key");
+
+        var res = parser.parse('a, [m= 45, [soo, po=6], doo], b');
+        deepEqual(res, ['a', {m: 45, 0: {0: 'soo', 'po': 6}, 1: 'doo'}, 'b'], "nested arrays");
+
+        var res = parser.parse('a, [m= 45, [soo, po=[doo=az, [foo=[  45,68 ]]]], doo], b');
+        deepEqual(res, ['a', {m: 45, 0: {0: 'soo', 'po': {doo: 'az', 0: {foo: {0: 45, 1: 68}}}}, 1: 'doo'}, 'b'], "array as value");
+
+
+    });
+
+
+</script>
+</body>
+</html>

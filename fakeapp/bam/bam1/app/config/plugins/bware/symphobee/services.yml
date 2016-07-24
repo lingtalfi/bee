@@ -1,0 +1,21 @@
+bware:
+    symphoBee:
+        webApp: 
+            _class: WebModule\Bware\SymphoBee\WebApplication\WebApplication
+            _args:
+                options: 
+                    dispatcher: 
+                        _class: WebModule\Bware\SymphoBee\WebApplication\Dispatching\WebApplicationDispatcher
+                        _args:
+                            listeners: §bware.symphoBee.webApp.listeners§
+        webAppListeners:  # standard listeners
+            colombusRouterListener:
+                _class: WebModule\Bware\SymphoBee\WebApplication\Dispatching\Listener\ColombusRouterListener
+                _args:
+                    router: 
+                        _class: WebModule\Bware\SymphoBee\Routing\Router\ColombusRouter
+                        _args:
+                            routeNodes: §bware.symphoBee.webApp.colombusRouter.routeNodes§
+                    options: 
+                        defaultController: §bware.symphoBee.webApp.colombusRouter.defaultController§
+                        defaultControllerConstructorArgs: §bware.symphoBee.webApp.colombusRouter.defaultControllerConstructorArgs§

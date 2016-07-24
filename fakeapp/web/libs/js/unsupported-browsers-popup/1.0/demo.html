@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+
+
+	<script src="unsupportedbrowserspopup.js"></script>
+	<script src="locale/eng.js"></script>
+	<link rel="stylesheet" href="unsupportedbrowserspopup.css">
+	<title>Html page</title>
+</head>
+
+<body>
+
+<h1>My website</h1>
+
+<h2>About</h2>
+<p>
+	The goal of this demo is just to give you an idea of what the default popup looks like.
+	<br>
+	To customize the popup design is just a matter of changing the css style.
+	<br>
+	Related to the behaviour, please read the docs to see what is feasible:
+	you can choose things like: when does the popup open?, does it open just once?,
+	what browser list shall be displayed, and more...
+	<br>
+	Go back to the <a href="doc/manual.unsupportedbrowserspopup.eng.html">docs</a>.
+</p>
+<h2>Lorem</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab commodi eos quae qui repudiandae! Aliquam eligendi expedita facere id illum ipsam iste labore numquam quae quos saepe sed, sequi voluptate.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A animi commodi debitis dolorum ducimus enim exercitationem explicabo facere illo ipsum iure labore libero nisi, obcaecati perspiciatis quae tenetur vel, voluptate.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aperiam error explicabo facilis illo impedit labore magnam, maiores molestias natus porro, praesentium provident quo recusandae sequi sunt tempore vero vitae..</p>
+
+<script>
+
+	var o = new UnsupportedBrowsersPopup({
+		ifTest: function(){
+			return true;
+		},
+		remember: false, // default=true
+		rememberDuration: null,
+		displayOptions: {
+//			message: ":strong",
+			message: "Oops<br>This website uses fundamental features that your current browser cannot handle.<br>Please upgrade your browser, or use one from the list below, then reload this page<br>" +
+					"(actually for this demo, this popup will always trigger, no matter what browser you use)",
+			overlayBgColor: "#333",
+			browsers: "latest",
+			width: 400,
+			height: 350,
+			showFooter: true,
+			lang: "eng"
+		}
+	});
+</script>
+
+
+</body>
+</html>

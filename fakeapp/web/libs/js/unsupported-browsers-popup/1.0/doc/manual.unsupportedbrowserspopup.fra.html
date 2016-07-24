@@ -1,0 +1,339 @@
+<h1>Unsupported Browsers Popup: Manuel d'utilisation</h1>
+
+<p>2014-10-17</p>
+
+<h2>Présentation</h2>
+
+<p>Parfois, on souhaite afficher un popup conseillant à l'utilisateur de changer de navigateur.</p>
+
+<p>Unsupported Browsers Popup (ubp) affiche un popup qui explique
+à l'utilisateur que son navigateur n'est pas optimal,
+et propose des liens vers les pages de téléchargement des navigateurs appropriés.</p>
+
+<p>Ubp permet de contrôler:</p>
+
+<ul>
+<li>quand est-ce que le popup doit se lancer</li>
+<li>le message à afficher</li>
+<li>la liste des navigateurs acceptés</li>
+</ul>
+
+<p>Ubp est conçu pour gérer le multilangue et propose actuellement les langues suivantes:</p>
+
+<ul>
+<li>anglais    (moi)</li>
+<li>français     (moi)</li>
+<li>...votre version ici    (votre nom)</li>
+</ul>
+
+<p>Afin d'être correctement interprété par un maximum de navigateurs, Ubp est écrit en javascript pur.
+Ubp incorpore optionnellement la librairie <a href="https://github.com/ded/bowser" target="_blank">bowser.js</a>
+qui permet de détecter les browsers facilement.</p>
+
+<p>Voir les exemples de la section Quickstart ci-dessous.</p>
+
+<h2>Quickstart</h2>
+
+<p>Exemple 1: drop support pour ie8-, utilisation de la librairie externe bowser pour la détection du browser.</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"/&gt;
+
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/bowser.min.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css"&gt;
+    &lt;title&gt;Html page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+
+&lt;script&gt;
+
+
+    // drop support for ie8-
+    var o = new UnsupportedBrowsersPopup({
+        ifTest: function () {
+            return (true === bowser.msie &amp;&amp; bowser.version &lt;= 8);
+        }
+    });
+&lt;/script&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Exemple 2: lance un popup de mise en garde si le module css flexbox n'est pas disponible. Utilisation de la librairie externe modernizr
+             pour la détection du module flexbox.</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"/&gt;
+
+    &lt;script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css"&gt;
+    &lt;title&gt;Html page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+
+&lt;script&gt;
+
+
+    // shows the popup only if flexbox is not available to the current browser
+    var o = new UnsupportedBrowsersPopup({
+        ifTest: function () {
+            return (false === Modernizr.flexbox);
+        }
+    });
+&lt;/script&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Exemple 3: jouer avec les options</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"/&gt;
+
+
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css"&gt;
+    &lt;title&gt;Html page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+
+&lt;script&gt;
+
+    var o = new UnsupportedBrowsersPopup({
+        ifTest: function(){
+            return true;
+        },
+        remember: false, // default=true
+        rememberDuration: null,
+        displayOptions: {
+            message: ":strong",
+            overlayBgColor: "#333",
+			width: 400,
+			height: 300,
+            browsers: "latest",
+            showFooter: true,
+            lang: "eng"
+        }
+    });
+&lt;/script&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2>Options</h2>
+
+<p>Les options par défaut sont les suivantes:</p>
+
+<ul>
+<li>ifTest: bool function() | null (null)</li>
+<li>remember: bool (true)</li>
+<li>rememberDuration: null | int (null)</li>
+<li>displayOptions:
+<ul><li>message: string (":strong")</li>
+<li>overlayBgColor: string ("#333")</li>
+<li>browsers: string | array ("latest")</li>
+<li>showFooter: bool (true)</li>
+<li>lang: string ("eng")</li></ul></li>
+</ul>
+
+<h3>ifTest</h3>
+
+<p>bool    function() | null (null)</p>
+
+<p>ifTest est l'option la plus importante: c'est la fonction qui décide si le popup DEVRAIT être lancé ou pas.
+Si la fonction retourne true, le popup DEVRAIT être lancé, sinon, le popup n'est pas lancé.
+J'insiste bien sur le mot DEVRAIT, car même si le popup DEVRAIT être lancé, il est possible qu'il ne
+soit finalement pas lancé, voir l'option remember.</p>
+
+<h3>remember</h3>
+
+<p>bool (true)</p>
+
+<p>Si le test échoue, le popup va s'afficher une première fois.
+Mais après, est-ce qu'on veut continuer à afficher le popup à chaque fois ou pas ?</p>
+
+<p>Par défaut, remember vaut true: un cookie "remember" est créé qui
+interdit l'affichage du popup (tant que remember vaut true).</p>
+
+<p>On peut également mettre cette option à false, pour tester l'affichage du popup temporairement, ou bien pour
+spammer l'utilisateur de manière délibérée.
+Pour les sadiques, on peut même désactiver le bouton qui ferme le popup de manière à ce que l'utilisateur
+soit forcé de télécharger un navigateur compatible pour voir le site (nhiahahaaa),
+voir l'option displayOptions.showFooter.</p>
+
+<p>La durée de validité du cookie est définie par l'option rememberDuration.</p>
+
+<h3>rememberDuration</h3>
+
+<p>null | int (null)</p>
+
+<p>Définit la durée de validié du cookie "remember" (voir option remember).
+Si la valeur est null, le cookie expire lorsque le navigateur est fermé.
+Si c'est un int, c'est un nombre de jours.</p>
+
+<h3>displayOptions.message</h3>
+
+<p>string (":strong")</p>
+
+<p>Définit le message principal du popup.
+Il y a deux manières d'écrire un message:</p>
+
+<ul>
+<li>écrire le message directement</li>
+<li>utiliser un identifiant de message (technique par défaut)</li>
+</ul>
+
+<p>Ecrire le message directement est pratique si votre site n'utilise qu'une seule langue.
+Si le site est multilangue, il est préférable d'utiliser un identifiant de message.
+Lorsqu'on utilise un identifiant de message, le message correspondant est cherché en
+fonction de la langue (option displayOptions.lang).</p>
+
+<p>Par défaut, il y a 3 identifiants de message:</p>
+
+<ul>
+<li>:strong (default)</li>
+<li>:medium</li>
+<li>:weak</li>
+</ul>
+
+<p>On peut créer de nouveaux identifiants au sein des fichiers de locale situés dans le dossier locale (ouvrez les fichiers
+de locale que vous souhaitez, puis ajoutez votre identifiant après strong, medium et weak).</p>
+
+<p>La valeur de l'option displayOptions.message est considérée comme un identifiant de message si
+elle commence par le symbole deux points (:).
+Si ce n'est pas le cas, le message est affiché tel quel.</p>
+
+<h3>displayOptions.overlayBgColor</h3>
+
+<p>string ("#333")</p>
+
+<p>La couleur par défaut du background de l'overlay.
+L'overlay utilise par défaut la propriété css opacity: 0.5.
+Vous pouvez modifier cela dans le css (.unsupportedbrowserspopup-overlay).</p>
+
+<h3>displayOptions.browsers</h3>
+
+<p>string | array ("latest")</p>
+
+<p>La liste des browsers à afficher.
+Chaque élément de la liste est composé de 3 propriétés:</p>
+
+<ul>
+<li>text, le texte à afficher (nom du browser)</li>
+<li>icon, la classe css représentant un icône</li>
+<li>link, le lien vers la page de téléchargement du navigateur</li>
+</ul>
+
+<p>On peut soit écrire la liste directement, soit utiliser un identifiant de liste.
+La différence principale entre les 2 est qu'avec un identifiant de liste, la liste dépend de
+la langue (displayOptions.lang).</p>
+
+<p>Si votre site est multilangue, il est recommandé d'utiliser un identifiant de liste.
+Pour créer un identifiant de liste, ouvrez les fichiers de locale souhaités (dossier locale),
+puis ajoutez votre liste sous la propriété browsers.</p>
+
+<p>Par défaut, l'identifiant de liste "latest" est disponible et utilisé par ubp.</p>
+
+<p>Pour créer la liste directement, on utilise un tableau javascript, par exemple, pour l'identifiant "latest",
+la liste est la suivante (en anglais):</p>
+
+<ul>
+<li>0:
+<ul><li>text: ie</li>
+<li>link: http://windows.microsoft.com/en-us/internet-explorer/ie-11-worldwide-languages</li>
+<li>icon: ie</li></ul></li>
+<li>1:
+<ul><li>text: chrome</li>
+<li>link: http://www.google.com/chrome/index.html</li>
+<li>icon: chrome</li></ul></li>
+<li>2:
+<ul><li>text: safari</li>
+<li>link: http://support.apple.com/downloads/#safari</li>
+<li>icon: safari</li></ul></li>
+<li>3:
+<ul><li>text: firefox</li>
+<li>link: https://www.mozilla.org/en-US/firefox/all/</li>
+<li>icon: firefox</li></ul></li>
+<li>4:
+<ul><li>text: opera</li>
+<li>link: http://www.opera.com/computer</li>
+<li>icon: opera</li></ul></li>
+</ul>
+
+<h4>Les icônes css</h4>
+
+<p>Ubp utilise la technique css background-image pour afficher les icônes des navigateurs.
+Les classes css disponibles sont:</p>
+
+<ul>
+<li>chromeandroid</li>
+<li>chrome</li>
+<li>firefox</li>
+<li>ie</li>
+<li>opera</li>
+<li>safariios</li>
+<li>safari</li>
+</ul>
+
+<p>Elles sont codées dans le fichier css unsupportedbrowserspopup.css, en bas du fichier, section BROWSERS ICONS.</p>
+
+<p>Note: toutes les icônes utilisées proviennent du projet
+<a href="https://github.com/alrra/browser-logos" target="_blank">browser-logos</a></p>
+
+<p>Pour ajouter vos propres icônes, veuillez editer le fichier css en conséquence.</p>
+
+<h3>displayOptions.showFooter</h3>
+
+<p>bool (true)</p>
+
+<p>Doit-on afficher le bouton qui permet de fermer le dialogue ou pas ?
+Cette option est réservée pour les sadiques.</p>
+
+<h3>displayOptions.lang</h3>
+
+<p>string ("eng")</p>
+
+<p>Un code iso-639-2 (3 lettres) représentant la langue à utiliser.
+Il y a 3 choses qui sont dépendantes de la langue:</p>
+
+<ul>
+<li>le message principal</li>
+<li>le message du bouton close (ok)</li>
+<li>la liste des navigateurs</li>
+</ul>
+
+<p>Vous pouvez ouvrir les fichiers locale (dossier locale) et ajoutez les propriétés que vous souhaitez.</p>
+
+<p>Note: si votre site est multilangue, assurez-vous de charger toutes les locales
+            que vous utilisez (dans la balise head).</p>
+
+<h2>Le mot de la fin</h2>
+
+<p>Bon ben voilà, je crois que j'ai fait le tour.
+N'hésitez pas à me signaler les oublis que j'aurais pu faire, ou à m'envoyer des nouvelles langues si vous pouvez.</p>
+
+<p>Amusez-vous bien!</p>
+

@@ -1,0 +1,34 @@
+vars:
+
+# Domain ids are phpVars
+commands:
+    general:
+        0:
+            name: ls
+            description: a simple test command
+            cmd: ls -lArth  2>&1
+        1:
+            name: whoami
+            description: another simple test command
+            cmd: whoami
+#        2:
+#            name: sshConnectionFakeExample
+#            description: simple sshConnection via web server
+#            cmd: ssh -i ~/.ssh/id_dsa_with_no_passphrase -p2222 -C mee@12.34.56.78  2>&1
+
+#    mee.example.com:
+#
+#        0:
+#            name: upsync
+#            description: upsync only files (and or directories) that have been modified
+#            cmd: <
+#
+#            rsync -rvz --update --delete -e 'ssh -i /Users/mee/.ssh/id_dsa_with_no_passphrase -p 2222' \
+#            --exclude=.DS_Store \
+#            --exclude=.idea \
+#            --exclude=private \
+#            "/local/path/to/my/app/" \
+#            mee@12.34.56.78:~/websites/my/app \
+#            2>&1
+#
+#            >

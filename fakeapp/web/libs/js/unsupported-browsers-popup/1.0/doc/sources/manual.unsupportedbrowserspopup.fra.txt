@@ -1,0 +1,371 @@
+Unsupported Browsers Popup: Manuel d'utilisation
+=========================================
+2014-10-17
+
+
+
+Présentation
+----------------
+
+Parfois, on souhaite afficher un popup conseillant à l'utilisateur de changer de navigateur.
+
+
+Unsupported Browsers Popup (ubp) affiche un popup qui explique
+à l'utilisateur que son navigateur n'est pas optimal,
+et propose des liens vers les pages de téléchargement des navigateurs appropriés.
+
+
+
+Ubp permet de contrôler:
+
+- quand est-ce que le popup doit se lancer
+- le message à afficher
+- la liste des navigateurs acceptés
+
+
+Ubp est conçu pour gérer le multilangue et propose actuellement les langues suivantes:
+
+- anglais    (moi)
+- français     (moi)
+- ...votre version ici    (votre nom)
+
+
+Afin d'être correctement interprété par un maximum de navigateurs, Ubp est écrit en javascript pur.
+Ubp incorpore optionnellement la librairie <a href="https://github.com/ded/bowser" target="_blank">bowser.js</a>
+qui permet de détecter les browsers facilement.
+
+Voir les exemples de la section Quickstart ci-dessous.
+
+
+
+Quickstart
+-------------
+
+Exemple 1: drop support pour ie8-, utilisation de la librairie externe bowser pour la détection du browser.
+
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+        <script src="/lib/js/unsupported-browsers-popup/1.0/bowser.min.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+
+        // drop support for ie8-
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function () {
+                return (true === bowser.msie && bowser.version <= 8);
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+Exemple 2: lance un popup de mise en garde si le module css flexbox n'est pas disponible. Utilisation de la librairie externe modernizr
+             pour la détection du module flexbox.
+
+
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+
+        // shows the popup only if flexbox is not available to the current browser
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function () {
+                return (false === Modernizr.flexbox);
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+
+Exemple 3: jouer avec les options
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8"/>
+
+
+        <script src="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.js"></script>
+        <script src="/lib/js/unsupported-browsers-popup/1.0/locale/eng.js"></script>
+        <link rel="stylesheet" href="/lib/js/unsupported-browsers-popup/1.0/unsupportedbrowserspopup.css">
+        <title>Html page</title>
+    </head>
+
+    <body>
+
+
+    <script>
+
+        var o = new UnsupportedBrowsersPopup({
+            ifTest: function(){
+                return true;
+            },
+            remember: false, // default=true
+            rememberDuration: null,
+            displayOptions: {
+                message: ":strong",
+                overlayBgColor: "#333",
+				width: 400,
+				height: 300,
+                browsers: "latest",
+                showFooter: true,
+                lang: "eng"
+            }
+        });
+    </script>
+
+
+    </body>
+    </html>
+
+
+
+Options
+--------------
+Les options par défaut sont les suivantes:
+
+
+- ifTest: bool function() | null (null)
+- remember: bool (true)
+- rememberDuration: null | int (null)
+- displayOptions:
+    - message: string (":strong")
+    - overlayBgColor: string ("#333")
+    - browsers: string | array ("latest")
+    - showFooter: bool (true)
+    - lang: string ("eng")
+
+
+
+
+### ifTest
+
+bool    function() | null (null)
+
+ifTest est l'option la plus importante: c'est la fonction qui décide si le popup DEVRAIT être lancé ou pas.
+Si la fonction retourne true, le popup DEVRAIT être lancé, sinon, le popup n'est pas lancé.
+J'insiste bien sur le mot DEVRAIT, car même si le popup DEVRAIT être lancé, il est possible qu'il ne
+soit finalement pas lancé, voir l'option remember.
+
+
+### remember
+
+bool (true)
+
+Si le test échoue, le popup va s'afficher une première fois.
+Mais après, est-ce qu'on veut continuer à afficher le popup à chaque fois ou pas ?
+
+Par défaut, remember vaut true: un cookie "remember" est créé qui
+interdit l'affichage du popup (tant que remember vaut true).
+
+On peut également mettre cette option à false, pour tester l'affichage du popup temporairement, ou bien pour
+spammer l'utilisateur de manière délibérée.
+Pour les sadiques, on peut même désactiver le bouton qui ferme le popup de manière à ce que l'utilisateur
+soit forcé de télécharger un navigateur compatible pour voir le site (nhiahahaaa),
+voir l'option displayOptions.showFooter.
+
+La durée de validité du cookie est définie par l'option rememberDuration.
+
+
+### rememberDuration
+
+null | int (null)
+
+Définit la durée de validié du cookie "remember" (voir option remember).
+Si la valeur est null, le cookie expire lorsque le navigateur est fermé.
+Si c'est un int, c'est un nombre de jours.
+
+
+### displayOptions.message
+
+string (":strong")
+
+Définit le message principal du popup.
+Il y a deux manières d'écrire un message:
+
+- écrire le message directement
+- utiliser un identifiant de message (technique par défaut)
+
+Ecrire le message directement est pratique si votre site n'utilise qu'une seule langue.
+Si le site est multilangue, il est préférable d'utiliser un identifiant de message.
+Lorsqu'on utilise un identifiant de message, le message correspondant est cherché en
+fonction de la langue (option displayOptions.lang).
+
+Par défaut, il y a 3 identifiants de message:
+
+- :strong (default)
+- :medium
+- :weak
+
+On peut créer de nouveaux identifiants au sein des fichiers de locale situés dans le dossier locale (ouvrez les fichiers
+de locale que vous souhaitez, puis ajoutez votre identifiant après strong, medium et weak).
+
+La valeur de l'option displayOptions.message est considérée comme un identifiant de message si
+elle commence par le symbole deux points (:).
+Si ce n'est pas le cas, le message est affiché tel quel.
+
+
+
+### displayOptions.overlayBgColor
+
+string ("#333")
+
+La couleur par défaut du background de l'overlay.
+L'overlay utilise par défaut la propriété css opacity: 0.5.
+Vous pouvez modifier cela dans le css (.unsupportedbrowserspopup-overlay).
+
+
+
+### displayOptions.browsers
+
+string | array ("latest")
+
+La liste des browsers à afficher.
+Chaque élément de la liste est composé de 3 propriétés:
+
+- text, le texte à afficher (nom du browser)
+- icon, la classe css représentant un icône
+- link, le lien vers la page de téléchargement du navigateur
+
+
+On peut soit écrire la liste directement, soit utiliser un identifiant de liste.
+La différence principale entre les 2 est qu'avec un identifiant de liste, la liste dépend de
+la langue (displayOptions.lang).
+
+Si votre site est multilangue, il est recommandé d'utiliser un identifiant de liste.
+Pour créer un identifiant de liste, ouvrez les fichiers de locale souhaités (dossier locale),
+puis ajoutez votre liste sous la propriété browsers.
+
+
+Par défaut, l'identifiant de liste "latest" est disponible et utilisé par ubp.
+
+Pour créer la liste directement, on utilise un tableau javascript, par exemple, pour l'identifiant "latest",
+la liste est la suivante (en anglais):
+
+
+- 0:
+    - text: ie
+    - link: http://windows.microsoft.com/en-us/internet-explorer/ie-11-worldwide-languages
+    - icon: ie
+- 1:
+    - text: chrome
+    - link: http://www.google.com/chrome/index.html
+    - icon: chrome
+- 2:
+    - text: safari
+    - link: http://support.apple.com/downloads/#safari
+    - icon: safari
+- 3:
+    - text: firefox
+    - link: https://www.mozilla.org/en-US/firefox/all/
+    - icon: firefox
+- 4:
+    - text: opera
+    - link: http://www.opera.com/computer
+    - icon: opera
+
+
+
+#### Les icônes css
+
+Ubp utilise la technique css background-image pour afficher les icônes des navigateurs.
+Les classes css disponibles sont:
+
+- chromeandroid
+- chrome
+- firefox
+- ie
+- opera
+- safariios
+- safari
+
+Elles sont codées dans le fichier css unsupportedbrowserspopup.css, en bas du fichier, section BROWSERS ICONS.
+
+Note: toutes les icônes utilisées proviennent du projet
+<a href="https://github.com/alrra/browser-logos" target="_blank">browser-logos</a>
+
+
+Pour ajouter vos propres icônes, veuillez editer le fichier css en conséquence.
+
+
+
+
+### displayOptions.showFooter
+
+bool (true)
+
+Doit-on afficher le bouton qui permet de fermer le dialogue ou pas ?
+Cette option est réservée pour les sadiques.
+
+
+### displayOptions.lang
+
+string ("eng")
+
+
+Un code iso-639-2 (3 lettres) représentant la langue à utiliser.
+Il y a 3 choses qui sont dépendantes de la langue:
+
+- le message principal
+- le message du bouton close (ok)
+- la liste des navigateurs
+
+
+Vous pouvez ouvrir les fichiers locale (dossier locale) et ajoutez les propriétés que vous souhaitez.
+
+
+Note: si votre site est multilangue, assurez-vous de charger toutes les locales
+            que vous utilisez (dans la balise head).
+
+
+
+
+
+Le mot de la fin
+------------------
+Bon ben voilà, je crois que j'ai fait le tour.
+N'hésitez pas à me signaler les oublis que j'aurais pu faire, ou à m'envoyer des nouvelles langues si vous pouvez.
+
+
+Amusez-vous bien!
+
+
+
+
+
+

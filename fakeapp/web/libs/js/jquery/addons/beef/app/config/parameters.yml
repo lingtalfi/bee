@@ -1,0 +1,54 @@
+__plugins:
+    a: komin/base
+    b: komin/user
+    c: komin/crud
+
+
+
+komin:
+    base:
+        application:
+            adr:
+                libs: []
+        db:
+            pdoConnections:
+                default:
+                    dsn: mysql:dbname=webtv;host=localhost
+                    user: root
+                    pass: root
+                    options: []
+        lang:
+            defaultLang: eng
+            translator:
+                translationsRootFolder: "[app]/lang"
+    crud:
+        server:
+            nodes:
+                c.*.*:
+                    _badges: []
+                r.*.*:
+                    _badges: []
+                u.*.*:
+                    _badges: []
+                d.*.*:
+                    _badges: []
+    user:
+        userToken:
+            userList:
+                users:
+                    ling:
+                        login: ling
+                        pass: ling
+                        badges:
+                            - admin
+                loginKey: login
+                passKey: pass
+            user2tokenAdaptor:
+                badgesKey: badges
+                userDataKeys: [login]
+            badgesTree:
+                admin:
+                    - moderator
+                moderator:
+                    - dominator
+                    - applicator

@@ -1,0 +1,116 @@
+komin:
+    base:
+        __init:
+            _class: WebModule\Komin\Base\Initializer
+
+        application:
+            adr: 
+                _class: WebModule\Komin\Base\Application\Adr\LingAdr
+                _args:
+                    libs: §komin.base.application.adr.libs§
+            bridge:
+                _class: WebModule\Komin\Base\Application\ApplicationBridge\MeeApplicationBridge
+                _args:
+                    params: §komin.base.application.bridgeParams§
+            tokenManager:
+                _class: WebModule\Komin\Base\Application\SessionToken\TokenManager\TokenManager
+                _args:
+                    options:
+                        renew: 10
+#                        duration: 30
+        db:
+            pdoConnectionManager:
+                _class: Bee\Component\Db\PdoConnectionManager\PdoConnectionManager
+                _args:
+                    connections: §komin.base.db.pdoConnections§
+        http:
+            # defaults settings from php.net
+            # http://php.net/manual/en/session.configuration.php
+            session:
+                _class: Bee\Component\Http\Session\Session
+                _args:
+                    config:
+                        save_path: ""
+                        name: PHPSESSID
+                        save_handler: files
+                        gc_probability: 1
+                        gc_divisor: 100
+                        gc_maxlifetime: 1440
+                        serialize_handler: php
+                        cookie_lifetime: 0
+                        cookie_path: /
+                        cookie_domain: ""
+                        cookie_secure: ""
+                        cookie_httponly: ""
+                        use_strict_mode: 0
+                        use_cookies: 1
+                        use_only_cookies: 1
+                        referer_check: ""
+                        entropy_file: ""
+                        entropy_length: 0
+                        cache_limiter: nocache
+                        cache_expire: 180
+                        use_trans_sid: 0
+                        bug_compat_42: 1
+                        bug_compat_warn: 1
+                        hash_function: 0
+                        hash_bits_per_character: 4
+                        url_rewriter.tags: a=href,area=href,frame=src,form=,fieldset=
+                _calls:
+                    0:
+                        _method: start
+        lang:
+            translator:
+                translator:
+                    _class: Bee\Component\Lang\Translator\Translator
+                    _args:
+                        catalogLoader: @komin.base.lang.translator.loader
+                loader:
+                    _class: WebModule\Komin\Base\Lang\Translator\CatalogLoader\XmlPsnCatalogLoader
+                    _args:
+                        rootFolder: §komin.base.lang.translator.translationsRootFolder§
+            applicationLangServer:
+                _class: WebModule\Komin\Base\Lang\ApplicationLang\ApplicationLangServer
+                _args:
+                    defaultLang: §komin.base.lang.defaultLang§
+
+
+        log:
+            fileRotator:
+                _class: Bee\Component\Log\FileRotator\BySizeFileRotator
+                _args:
+                    options:
+                        maxSize: 100M
+            loggerListeners:
+                toFile:
+                    _class: WebModule\Komin\Base\Log\SuperLogger\Listener\ToFileListener
+                    _args: §komin.base.log.loggerListeners.toFile.args§
+            superLoggerStarter:
+                _class: WebModule\Komin\Base\Log\SuperLogger\SuperLoggerStarter
+                _args:
+                    params:
+                        listenersAndRules:
+                            -
+                                listener: @komin.base.log.loggerListeners.toFile
+                                rules: * 
+                        skippedRules: §komin.base.log.supperLogger.skippedRules§
+
+
+
+        notation:
+            psn:
+                _class: Bee\Notation\String\Psn\PsnResolver
+                _args:
+                    symbols: §komin.base.notation.psnSymbols§
+
+        server:
+#            ajaxService:
+#                manager:
+#                    _class: WebModule\Komin\Base\Server\AjaxService\AjaxServiceManager\AjaxServiceManager
+#                    _args:
+#                        services: []
+            ascp:
+                ajaxMasterServer:
+                    _class: WebModule\Komin\Base\Server\Ascp\AjaxMasterServer\AjaxMasterServer
+                    _args:
+                        servers: []

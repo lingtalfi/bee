@@ -1,0 +1,116 @@
+Tutoriel: right click
+============
+2014-11-21
+
+
+
+Bonjour,
+dans ce tutoriel, nous allons voir comment réaliser un menu contextuel avec macGuiMenu.
+
+Le résultat final sera ceci (t).
+
+
+Pour réaliser ce tutoriel, vous aurez besoin de connaissances en javascript, et de quelques connaissances
+en jquery également.
+Je vous invite également à regarder le premier tutoriel sur la création des topmenus,
+car je vais réutiliser les notions que j'ai évoquées dans ce précédent tutoriel.
+
+
+
+Pour commencer, je vous invite à télécharger le fichier (tuto2.start)
+Ce fichier contient simplement un layout de base, sans le code javascript.
+Nous allons maintenant ajouter le code javascript progressivement.
+
+
+
+(montrer le résultat après chaque étape)
+
+0.
+    Nous allons commencer par appeler la librairie macGuiMenu ainsi que ses dépendences
+
+1.
+    Nous allons maintenant créer la variable jZone1 qui contiendra la zone qui va contenir notre topmenu;
+    puis nous allons appeler la méthode createRightClickZone.
+
+    Cette méthode prend deux arguments: une zone, et un identifiant de panel.
+    La zone doit être un objet jquery, nous passerons la variable jZone1.
+
+    Pour l'identifiant de panel, ou uid, on va mettre desktop.
+    Maintenant que cela est fait, il nous faut créer le panel desktop.
+
+    Pour cela, on va utiliser la méthode createStandardPanel, expliquée plus en détail
+    dans le tutoriel de création de topmenus.
+
+    Le panel créé ici est quelconque.
+
+
+    Avant de tester notre code, on va définir ce qui doit se passer lorsqu'on
+    clique sur un item.
+    Dans le cadre de ce tutoriel, on va simplement afficher l'uid de l'item
+    à côté de la pomme en bas de l'écran.
+    Pour cela, nous allons utiliser la méthode executeItem, comme dans notre
+    précédent tutoriel.
+
+
+
+    On peut maintenant tester notre code (t).
+    Si on fait un clic droit dans la zone, on a bien notre menu qui apparaît.
+    Si on fait un clic droit hors de la zone, on a bien le menu contextuel
+    du navigateur qui apparaît.
+
+    Vérifions que lorsqu'on clique sur un item, l'action est bien déclenchée (t).
+
+    Toutefois, si on appuie sur ctrl+a maintenant, cela ne fonctionnera pas,
+    car nous n'avons pas dit à macGuiMenu d'écouter les raccourcis clavier.
+
+    Revenons dans notre code et ajoutons les deux lignes suivantes (t),
+    comme dans le tutoriel sur les topmenus.
+
+
+2.
+
+    Nous allons terminer ce tutoriel en créant un deuxième menu contextuel
+    qui ne s'ouvrira que lorsque l'on fera un right click sur la boîte rouge
+    ici (s).
+    Nous allons donc appeler la méthode createRightClickZone,
+    avec en premier argument l'objet jquery représentant la boîte rouge,
+    et en deuxième argument l'uid du panel que nous allons créer: ici, folder.
+
+
+    Il ne nous reste plus qu'à créer le panel avec l'uid folder.
+
+
+
+
+
+    Vérifiez toujours votre travail après avoir codé.
+
+    Voilà, c'est la fin de ce deuxième tutoriel.
+    J'espère que cela vous a aidé.
+
+
+
+    Merci d'avoir regardé, bye.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

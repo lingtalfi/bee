@@ -1,0 +1,10 @@
+.ajaxloader {
+    background: url(ajax-loader.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
+.ajaxloader.hidden {
+    display: none;
+}
