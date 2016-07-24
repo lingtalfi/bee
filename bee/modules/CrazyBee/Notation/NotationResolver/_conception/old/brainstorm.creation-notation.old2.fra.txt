@@ -1,0 +1,227 @@
+Brainstorm
+======================
+2015-05-16
+
+
+
+
+
+Dans ce document, je vais essayer de définir des outils que nous pourrons utiliser pour créer une notation.
+
+
+Une notation est une manière d'écrire des actions sous forme d'alias.
+L'intérêt est que l'utilisateur de la notation a à sa disposition une interface intuitive lui permettant 
+d'accéder aux couches profondes du programme proposant la notation.
+
+
+
+Vue générale
+====================
+
+
+Nomenclature
+-----------------
+
+Voici la nomenclature que nous utiliserons.
+
+Une notation propose à l'utilisateur des expressions.
+
+
+
+Les différents types d'expression
+-------------------------------------
+
+Une expression peut être de différents types:
+
+- référence
+- action
+
+
+Une référence est simplement un alias vers une autre valeur.
+L'intérêt des références est que la valeur est résolue dynamiquement, c'est à dire que:
+        - on peut modifier la valeur référencée dans un fichier de config par exemple, sans modifier le symbole dans la notation
+        - elle peut être modifiée par le programme en cours de route, et on conserve toujours la même notation
+        
+        
+Une action est une fonction.
+Comme toute fonction, il est possible qu'une action utilise des paramètres.        
+
+
+
+
+
+Problèmes auxquels nous allons être confrontés
+---------------------------
+
+Voici quelques problèmes auxquels nous allons être confrontés.
+
+
+    Créer les expressions, le choix des symboles
+    -----------------------------
+    
+    Une des premières choses à faire est de trouver les expressions de notre notation.
+    Les expressions peuvent tout à fait se mélanger à du texte normal,
+    un premier problème sera de trouver des expressions qui ne se distinguent des mots normaux,
+    tout en restant intuitives pour l'utilisateur.
+    
+    Par exemple si je dis que mon expression est a, et qu'elle exécute une action A1.
+    Si l'utilisateur écrit:
+     
+            bonjour ça va ?
+            
+    Il aurait exécuté deux fois l'action A1 ?
+    
+    
+    En général, on utilisera des symboles qu'on n'utilise pas souvent dans des phrases normales.
+    Par exemple, $, &, #, @, §, !, ...
+    
+    
+    On peut anticiper un peu et voir différents types de notation d'expression:
+    
+        - expressions qui utilisent un préfixe:
+                    
+                    - $myVar
+                    - @myVar
+                    
+        - expressions qui utilisent un symbole de début et de fin:
+                    
+                    - §parameter.fruit§
+                    - <action.one>
+                    
+        - expressions qui contiennent d'autres expressions:
+                    
+                    - @method->( $myVar, $myVar2, §param.one§ )
+                    - @method->( $myVar, $myVar2, @method->( @chosenFruit ), §param.one§ )
+    
+    
+    Les expressions qui contiennent d'autres expressions, nous les appelons container.
+    Les actions sont des expressions de type container, et elles contiennent les paramètres de l'action.
+        
+        
+    Ordre de parsage des expressions
+    -----------------------------------
+
+    Du fait que les containers contiennent d'autres expressions, il faut faire attention à les parser AVANT
+    les expressions de type non container.
+    Pourquoi ?
+    Une des raisons est la suivante:
+    
+        - encore une fois, une expression peut se mélanger à du texte normal, par exemple:
+            
+                - Bonjour, j'aime bien @implode->( ", ", §fruits.list§ )
+    
+                Imaginons que dans cet exemple, nous avons une action implode, correspondant à la fonction php
+                du même nom, et que §fruits.list§ soit une référence à un array.
+                
+                Vous devez savoir qu'on ne peut naturellement pas injecter un array dans une string,
+                c'est à dire que l'exemple suivant donnerait un résultat imprévisible:
+    
+    
+                - Bonjour, j'aime bien les fruits suivants: §fruits.list§ 
+    
+                
+                Et pourtant, en tant qu'argument de l'action implode, le array §fruits.list§ est tout à fait valide.
+                Il faut donc parser l'action AVANT, et c'est l'action qui, récursivement, résoudra les références
+                s'il y en a (entre autres).
+                
+    En conclusion, de manière générale, l'ordre de parsage des expressions est important, et doit donc être pensé au niveau
+    de la conception.
+    
+            
+            
+            
+    Résolution récursive des références
+    ----------------------------------------
+                    
+    Une référence peut appeler une autre référence, et ainsi de suite.
+            Par exemple:
+                            
+                    - $myVar
+                        résoud en
+                    - §hi.johny§
+                        qui résoud en                                                                                            
+                    - $michael
+                        qui résoud en
+                    - 33
+                                            
+    Pour traiter ce problème, on peut utiliser le principe de résolution récursive,
+    qui consiste à continuer à résoudre un élément tant qu'il est modifié.
+                    
+    
+    
+    Ecriture dynamique des symboles 
+    -----------------------------------
+    
+    Si l'on souhaite pouvoir écrire les symboles de manière dynamique, nous devons penser nos expressions en conséquence.
+            Par exemple, si on voulait pouvoir écrire une action dont le nom serait le résultat d'une référence:
+             
+                    - @implode->( ", ", §fruits.list§ )         # écriture statique du nom de l'action
+                    - @$myFunction->( ", ", §fruits.list§ )     # écriture dynamique du nom de l'action
+            
+            Dans ce cas, il faut bien que notre expression pour les actions reconnaisse accepte le symbole $.
+    Ensuite, au niveau de l'implémentation, une solution possible est de passer par une première phase d'expansion,
+    qui consiste à convertir la notation en un tableau php qui contient les différents éléments de la notation.
+            
+            Dans le cas d'une action, on peut imaginer un tableau de ce type:
+            
+                    - name: le nom de la méthode php à utiliser
+                    - parameters: un tableau contenant les paramètre de la fonction
+                    
+            L'avantage d'avoir une version expandée, est que maintenant on peut traiter chaque élément séparément.
+            Notamment, on peut résoudre le name avant de l'utiliser, idem pour chaque paramètre.
+            
+            Naturellement, on utilisera un système de résolution récursive pour chaque élément, afin d'offrir plus de souplesse
+            à l'utilisateur (à moins que l'on veuille brider le système).
+            
+            De plus, une fois le résultat exécuté, nous avons également la possibilité de résoudre récursivement le résultat
+            avant de le retourner, toujours dans l'optique d'offrir un maximum de souplesse dans la notation.
+                                            
+                
+    
+
+
+
+Maintenant que nous avons une vue générale de différents problèmes auxquels nous pouvons être confrontés,
+nous pouvons commencer à essayer de penser à quels outils on pourrait utiliser pour permettre la création de notation.
+
+
+
+
+Brainstorm outils
+====================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

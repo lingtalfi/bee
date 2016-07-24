@@ -1,0 +1,56 @@
+Brainstorm
+=================
+2015-05-09
+
+
+
+QuickDialogForm est une manière simple d'écrire plusieurs dialogues simples.
+La syntaxe est assez souple, bien que limitée.
+
+Elle conviendra donc pour la création rapide de formulaires simples.
+
+
+
+
+
+array   QuickFormDialog->play( array form )
+
+
+form est un tableau contenant des entrées.
+Chaque entrée est un tableau avec les valeurs suivantes:
+
+    0: nom du champ (nom de la variable qui figurera dans le tableau retourné par play)
+    1: label
+    2: identifiant de dialogue
+            null = defaultDialog,
+            voir l'implémentation qui évolue en fc des besoins
+    3: validation, voir implémentation pour les possibilités
+    4: default value
+    
+    
+    
+    
+    
+Exemple fictif en php:    
+    
+    $form = [
+        ['name', "What's your name?", 'defaultDialog', 'minLength=2', '(default value)'],
+        ['age', "Age", null, 'int', null],
+    ];
+    Form::playForm($form);
+
+
+
+
+Validation
+------------------
+
+
+pour la validation, les paramètres sont des paires de clés/valeurs séparées par des virgules,
+et utilisant le système d'échappement simple.
+Le symbole séparant les clés des valeurs est le égal (=).
+Les espaces non sémantiques sont autorisés;
+
+Exemple: 
+
+    - minLength=2; param2 = "som;e;s;tring" 

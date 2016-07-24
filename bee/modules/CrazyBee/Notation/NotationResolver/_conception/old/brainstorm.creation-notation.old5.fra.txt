@@ -1,0 +1,406 @@
+Brainstorm
+======================
+2015-05-16
+
+
+
+
+
+Dans ce document, je vais essayer de définir des outils que nous pourrons utiliser pour créer une notation.
+
+
+Une notation est une manière d'écrire des actions sous forme d'alias.
+L'intérêt est que l'utilisateur de la notation a à sa disposition une interface intuitive lui permettant 
+d'accéder aux couches profondes du programme proposant la notation.
+
+
+
+Vue générale
+====================
+
+
+Nomenclature
+-----------------
+
+Voici la nomenclature que nous utiliserons.
+
+Une notation propose à l'utilisateur des expressions.
+
+
+
+Les différents types d'expression
+-------------------------------------
+
+Une expression peut être de différents types:
+
+- référence
+- abbréviation
+- action
+
+
+Une référence est simplement un alias vers une autre valeur.
+L'intérêt des références est que la valeur est résolue dynamiquement, c'est à dire que:
+        - on peut modifier la valeur référencée dans un fichier de config par exemple, sans modifier le symbole dans la notation
+        - elle peut être modifiée par le programme en cours de route, et on conserve toujours la même notation
+        
+        
+Une abbréviation est un moyen plus court d'écrire une expression.
+L'intérêt est similaire à celui des raccourcis clavier dans un programme.
+Ici, la notation est plus courte, donc on gagne un peu de temps, mais on pourrait toujours utiliser la notation longue équivalente
+si on le souhaitait.
+
+
+    Exemple:
+        si une expression est switch.
+        Un raccourci pourrait être s.
+        Ce type d'abbréviation est plus adapté dans le contexte des clés d'un tableau, dans lequel chaque clé représenterait une expression,
+        plutôt que dans le contexte d'une string (car s est trop commun pour être une expression intéressante dans une string).
+        
+    Autre exemple:
+        toujours dans le contexte d'un tableau, si la clé xxx (par exemple) se termine par une expression $$->log par exemple,
+        alors une deuxième clé yyy est créée dans le tableau.
+        
+                - xxx: bonjour $$->log
+                
+                deviendrait par exemple:
+                
+                - xxx: bonjour 
+                - yyy: log
+        
+        
+Une action est une fonction.
+Comme toute fonction, il est possible qu'une action utilise des paramètres.        
+
+
+
+
+
+Problèmes auxquels nous allons être confrontés
+---------------------------
+
+Voici quelques problèmes auxquels nous allons être confrontés.
+
+
+    Créer les expressions, le choix des symboles
+    -----------------------------
+    
+    Une des premières choses à faire est de trouver les expressions de notre notation.
+    Les expressions peuvent tout à fait se mélanger à du texte normal,
+    un premier problème sera de trouver des expressions qui ne se distinguent des mots normaux,
+    tout en restant intuitives pour l'utilisateur.
+    
+    Par exemple si je dis que mon expression est a, et qu'elle exécute une action A1.
+    Si l'utilisateur écrit:
+     
+            bonjour ça va ?
+            
+    Il aurait exécuté deux fois l'action A1 ?
+    
+    
+    En général, on utilisera des symboles qu'on n'utilise pas souvent dans des phrases normales.
+    Par exemple, $, &, #, @, §, !, ...
+    
+    
+    On peut anticiper un peu et voir différents types de notation d'expression:
+    
+        - expressions qui utilisent un préfixe:
+                    
+                    - $myVar
+                    - @myVar
+                    
+        - expressions qui utilisent un symbole de début et de fin:
+                    
+                    - §parameter.fruit§
+                    - <action.one>
+                    
+        - expressions qui contiennent d'autres expressions:
+                    
+                    - @method->( $myVar, $myVar2, §param.one§ )
+                    - @method->( $myVar, $myVar2, @method->( @chosenFruit ), §param.one§ )
+    
+    
+    Les expressions qui contiennent d'autres expressions, nous les appelons container.
+    Les actions sont des expressions de type container, et elles contiennent les paramètres de l'action.
+        
+        
+    Ordre de parsage des expressions
+    -----------------------------------
+
+    Du fait que les containers contiennent d'autres expressions, il faut faire attention à les parser AVANT
+    les expressions de type non container.
+    Pourquoi ?
+    Une des raisons est la suivante:
+    
+        - encore une fois, une expression peut se mélanger à du texte normal, par exemple:
+            
+                - Bonjour, j'aime bien @implode->( ", ", §fruits.list§ )
+    
+                Imaginons que dans cet exemple, nous avons une action implode, correspondant à la fonction php
+                du même nom, et que §fruits.list§ soit une référence à un array.
+                
+                Vous devez savoir qu'on ne peut naturellement pas injecter un array dans une string,
+                c'est à dire que l'exemple suivant donnerait un résultat imprévisible:
+    
+    
+                - Bonjour, j'aime bien les fruits suivants: §fruits.list§ 
+    
+                
+                Et pourtant, en tant qu'argument de l'action implode, le array §fruits.list§ est tout à fait valide.
+                Il faut donc parser l'action AVANT, et c'est l'action qui, récursivement, résoudra les références
+                s'il y en a (entre autres).
+                
+    En conclusion, de manière générale, l'ordre de parsage des expressions est important, et doit donc être pensé au niveau
+    de la conception.
+    
+            
+            
+            
+    Résolution récursive des références
+    ----------------------------------------
+                    
+    Une référence peut appeler une autre référence, et ainsi de suite.
+            Par exemple:
+                            
+                    - $myVar
+                        résoud en
+                    - §hi.johny§
+                        qui résoud en                                                                                            
+                    - $michael
+                        qui résoud en
+                    - 33
+                                            
+    Pour traiter ce problème, on peut utiliser le principe de résolution récursive,
+    qui consiste à continuer à résoudre un élément tant qu'il est modifié.
+                    
+    
+    
+    Ecriture dynamique des symboles 
+    -----------------------------------
+    
+    Si l'on souhaite pouvoir écrire les symboles de manière dynamique, nous devons penser nos expressions en conséquence.
+            Par exemple, si on voulait pouvoir écrire une action dont le nom serait le résultat d'une référence:
+             
+                    - @implode->( ", ", §fruits.list§ )         # écriture statique du nom de l'action
+                    - @$myFunction->( ", ", §fruits.list§ )     # écriture dynamique du nom de l'action
+            
+            Dans ce cas, il faut bien que notre expression pour les actions reconnaisse accepte le symbole $.
+    Ensuite, au niveau de l'implémentation, une solution possible est de passer par une première phase d'expansion,
+    qui consiste à convertir la notation en un tableau php qui contient les différents éléments de la notation.
+            
+            Dans le cas d'une action, on peut imaginer un tableau de ce type:
+            
+                    - name: le nom de la méthode php à utiliser
+                    - parameters: un tableau contenant les paramètre de la fonction
+                    
+            L'avantage d'avoir une version expandée, est que maintenant on peut traiter chaque élément séparément.
+            Notamment, on peut résoudre le name avant de l'utiliser, idem pour chaque paramètre.
+            
+            Naturellement, on utilisera un système de résolution récursive pour chaque élément, afin d'offrir plus de souplesse
+            à l'utilisateur (à moins que l'on veuille brider le système).
+            
+            De plus, une fois le résultat exécuté, nous avons également la possibilité de résoudre récursivement le résultat
+            avant de le retourner, toujours dans l'optique d'offrir un maximum de souplesse dans la notation.
+                                            
+                
+    
+
+
+
+Maintenant que nous avons une vue générale de différents problèmes auxquels nous pouvons être confrontés,
+nous pouvons commencer à essayer de penser à quels outils on pourrait utiliser pour permettre la création de notation.
+
+
+
+
+Brainstorm outils
+====================
+
+
+
+Les abbréviations
+---------------------
+
+Il est intéressant de constater que nous pouvons expandre les abbréviations dans leur forme longue (attention, sans résoudre les valeurs),
+et ce dès qu'on est en possession de la notation à parser, donc de manière statique.
+Autrement dit, on peut expandre les abbréviations avant toute chose.
+
+
+
+
+Regex et Discoverers
+------------------------
+
+L'un des grands défis dans l'écriture d'une notation custom est d'avoir les outils nécessaires pour trouver et analyser
+le contenu des expressions de cette notation.
+
+
+A notre disposition, nous avons des outils comme les regex php, ou bien les discoverers (bee.notation.string.stringParser),
+ou bien que sais-je encore ?
+
+Sans aller plus loin, nous voyons donc que nous le choix des outils, et dans cette phase de conception, 
+on ne favorisera pas un outil plutôt qu'un autre.
+
+
+
+
+Essai à chaud
+-------------------
+
+
+1.  expand
+            expand des abbréviations
+            nous permet de travailler avec la notation "officielle"
+2.  on laisse le dév faire son travail
+            les notations peuvent être utilisées dans de nombreux contextes différents,
+             pour l'instant on n'a pas assez de recul pour proposer des méthodes pour chaque contexte.
+             
+3.  lorsque le dév veut accéder à une valeur dont il sait qu'elle utilise sa notation custom,
+        il va vouloir parser cette valeur.
+        
+        On lui proposera une méthode:
+        
+            mixed       getValue(v)
+                    pour résoudre des références
+                    pour transformer des notations d'action en code php, facilement utilisables par le dév (tableau, objet..). 
+                    
+                    
+                    Notre but est simplement de convertir la notation, en gérant la récursion au niveau des actions
+                    et des références.
+                                
+        
+                                        
+                                        
+                                        
+Toute la partie suivante concerne l'essai d'implémentation de la phase 3.
+                                        
+          
+
+Approche générale:
+       
+       Lorsqu'on parse une string, on loop tous les actions Finder.
+       Si un Finder matche, on arrête la boucle en cours,
+       puis on recommence une nouvelle boucle et ainsi de suite
+       jusqu'à ce qu'aucun finder ne matche.
+       
+       Le fait d'arrêter la boucle en cours permet d'éviter les conflits qu'il pourrait y avoir
+       avec plusieurs matches:
+            - si on a 2 matches par exemple, et qu'on remplace les matchs par leur valeur,
+            alors il faut "décaler" les positions du deuxième match si la valeur de remplacement du premier
+            match n'a pas la même longueur que la longueur du match lui-même.
+            Bref, pour éviter ces complications, on relance une boucle.
+            
+            Note: il n'y a pas de rétro-validation pour les matchs des finders,
+            donc le dev doit bien choisir sa syntaxe.
+       
+       
+       
+RecursiveResolver  (NotationResolver)
+    
+    mixed   getValue(string)      
+                    
+                    parse une expression donnée en utilisant la technique d'un resolver récursif,
+                    c'est à dire loop sur tous les finders, et encore jusqu'à ce qu'il n'y ait plus d'expression à parser,
+                    et renvoie le résultat correspondant.
+            
+          
+    void   setFinder(Finder, index=null)
+    void   unsetFinder(index)
+    void   setRecursiveMap(recursiveMap)
+                    Le recursive map permet de savoir quels finders relancer en cas de modification.
+                    Par défaut, on n'utilise que le nom du finder, et le map ressemble à ceci:
+                    
+                            sessionVar: [sessionVar, parameter, action]
+                            parameter: [sessionVar, parameter, action]
+                            action: null
+                            
+                    Qui se traduit comme ceci:
+                        si le finder nommé sessionVar trouve un match, relancer une loop avec les 3 finders sessionVar, parameter et action.
+                        Idem si le finder nommé parameter match.
+                        Par contre, si le finder nommé action matche, on ne fait rien de plus.
+                                                                                                                            
+                    Note: notre recursive resolver gère la partie standalone et empêche automatiquement les injections de non 
+                                scalaires dans une string.
+                                                                                                                                                             
+                    Le recursive map pourrait être autre chose qu'un tableau, car il y a la donnée du niveau de récursion, 
+                    à laquelle nous avons accès, et qui pourrait également être un critère de décision quant aux finders à relancer.
+                    Dans ce cas, ce serait un tableau dont les clés seraient les noms de finder (comme précédemment), mais les valeurs
+                    seraient des callables qui renverraient le tableau des finders à lancer pour le prochain tour:
+                    
+                            sessionVar: array callable (matchingFinderName, recursionLevel)
+                            parameter: array callable (matchingFinderName, recursionLevel)
+                            action: null
+          
+          
+          
+          
+                    
+                    
+                    
+                    
+                    
+ExpressionFinder                    
+    array|false        find ( string )
+                                si l'expression n'est pas trouvée, renvoie false.
+                                
+                                Si l'expression est trouvée, renvoie un tableau contenant:
+                                         0: position du premier caractère de l'expression
+                                         1: position du dernier caractère de l'expression
+                                         
+                                                
+    mixed       getValue ( )
+                        Renvoie la valeur interprétée.
+                        Dans le cas d'une action, on exécute l'action, et on renvoie le résultat obtenu.
+                        
+    mixed       setRecursiveResolver ( RecursiveResolver )
+                        Le fait d'avoir une référence au recursive resolver permet de relancer manuellement
+                        la récursion.
+                        Ainsi, par le jeu du clônage, un dév est capable de contrôler quelles expressions sont récursives,
+                        et ce à chaque niveau de la récursion, théoriquement.
+        
+                            
+       
+       
+       
+Nous
+=============    
+    
+- gestion du standalone/pas standalone
+
+        §srcDir§
+                on accepte de renvoyer un tableau
+        §srcDir§ et plus
+                on renvoie la chaîne telle quelle si §srcDir§ renvoie un tableau
+                
+                
+- gestion de la récursivité   
+    
+            Note: 
+                si on souhaite pouvoir parser les actions récursivement, le dév doit fournir un moyen
+                d'exécuter les actions à notre système.
+                Peut être peut-il fournir un objet générique:
+                
+                    ActionProcessor
+                            -> execute( functionInfo, args )
+                            
+                            On peut utiliser une convention qui décrit un tableau représentant functionInfo.
+                            De cette manière, on peut résoudre récursivement les éléments du tableau
+                            avant de les passer au processor.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

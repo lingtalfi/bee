@@ -1,0 +1,22 @@
+params:
+    komin:  
+        db:
+            pdo:
+                pdoInstancesArrays:
+                    default: 
+                        dsn: mysql:dbname=komin_repo;host=localhost
+                        username: root
+                        password: root
+                        options: 
+                            "PDO::MYSQL_ATTR_INIT_COMMAND": "SET NAMES 'UTF8'"
+                    
+
+services:
+    komin:
+        db:
+            pdo:
+                pdoInstances:
+                    _class: Bee\Component\Db\PdoInstances\PdoInstances
+                    _calls:
+                        - set(default, Bee\Component\Db\PdoInstances\Tool\Array2PdoInstanceTool::getPdoInstance ( §komin.db.pdo.pdoInstancesArrays.default§ ), true) 
+                    

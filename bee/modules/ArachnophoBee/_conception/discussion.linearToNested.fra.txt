@@ -1,0 +1,269 @@
+Discussion
+===============
+2015-04-11
+
+
+
+
+
+
+
+
+Je cherchais le meilleur algorithme pour la fonction linearToNested,
+et finalement, je crois que j'ai trouvé.
+
+Je ne l'ai pas encore implémenté, mais ça devrait fonctionner.
+Dans tous les cas, je souhaite exposer ma réflection avant l'implémentation, et peut être tirer une leçon de cette réflection.
+
+
+
+Lorsque j'écrirais des membres du tableau qui sont de type leaf (pas d'enfants), je ne mettrais pas les crochets, pour des questions
+de lisibilité.
+
+
+
+Je pense qu'on écrit la fonction si on résoud ces 3 problèmes:
+    - récursivité directe
+    - sibling d'un leaf
+    - sibling d'un parent
+
+
+Visuellement, cela:
+
+
+            |--|
+        |---------|   |----|
+    |------------------------|
+
+        
+
+
+Le premier problème concret: 
+    comment gérer la récursivité directe:
+    
+            a[b[c]]
+            
+    
+    Note:
+        Comme on veut l'algorithme le plus efficace, on souhaite avoir fini de computer le tableau nested 
+        à la fin d'une simple boucle foreach.
+                    
+                    
+La récursivité directe
+------------------------
+C'est assez simple.
+Dans le contexte de la boucle foreach, l'élément x+1 est enfant de x si (x+1)(L) < (x((R)
+                en disant que L et R représentent les limites gauche et droite.
+
+                
+
+On peut donc commencer par le code suivant:
+    ( je mets les index L et R quand cela m'arrange, équivalents à 0 et 1, pour plus de clarté dans la lecture )
+    ( de la même manière, la clé children équivaut à l'index 3 )
+            
+           
+    ret = []       
+    lastParent = [0, 0]
+    linearEls = []                
+    foreach( linearEls as el ){
+    
+        if ( el[L] < lastParent[R] ){ // el est enfant direct de lastEl
+            lastParent[children][] = el
+        }
+        else{
+            ret[] = el
+        }
+        
+        lastParent = el
+    }                
+    
+    
+Le deuxième problème, sibling d'un leaf:
+    
+    a[b[c, d]]
+    
+
+Nous devons bien sûr partir de notre code précédent.
+
+Ce qui est intéressant, c'est qu'un élément x n'est découvert parent qu'à la suite de ce calcul;
+un peu comme si on disait: "tiens, il a un enfant, donc c'est un parent !".
+
+
+    ret = []
+    lastParent = [0, 0]            
+    linearEls = []
+    foreach( linearEls as el ){
+    
+        if ( el[L] < lastParent[R] ){ // el est enfant direct de lastEl
+            lastParent[children][] = el
+            lastParent = el
+        }
+        else{
+            ret[] = el
+        }
+    }   
+    
+    
+Le troisième problème, sibling d'un parent:
+  
+  a[b[c], d]
+  
+  
+On s'aperçoit qu'il nous faut conserver une pile des parents, et être capable de cibler le bon parent
+à chaque fois.
+Donc notre lastParent deviendra plutôt une pile lastParents, avec le dernier parent en-dessous de la pile.
+Ici, on peut utiliser le fait que comme nous parsons les éléments linéairement, si x+1 n'est pas un enfant direct de x,
+tout élément suivant ne pourra jamais être enfant de x, on peut donc discarder comme parent.
+
+
+
+
+            L--R
+        L---------R   L----R
+    L------------------------R
+    
+
+
+
+
+
+
+
+L-------R  L-----x-----R
+
+
+1.
+------------------------------------------------------
+
+    ret = []
+    foreach ( els as el )
+    
+        
+        ret[] = el
+
+
+    return ret
+
+
+
+
+
+    L---x--R
+L-------------R  L-----------R
+
+
+
+      L-x-R
+    L---x---R
+L--------------R  L-----------R
+
+
+
+
+2.
+------------------------------------------------------
+
+    ret = []
+    lastEl = null
+    foreach ( els as el )
+        
+        
+        if ( lastEl && el[L] < lastEl[R] )
+            lastEl[children][] = el
+        else
+            ret[] = el
+            
+            
+        lastEl &= el
+
+
+    return ret
+
+
+
+
+      L--R
+    L------R L----x---R
+L-------------------------R  L-----------R
+
+
+         L--R
+      L-------R
+    L--------------R L----x---R
+L---------------------------------R  L-----------R
+
+
+
+
+3.
+------------------------------------------------------
+
+    ret = []
+    lastEl = null
+    lastParents = []
+    foreach ( els as el )
+        
+        
+        if ( lastEl && el[L] < lastEl[R] )            
+            
+            // php trick to unshift a reference to an element?
+            unshift(lastParents, 6)     
+            lastParents[] &= lastEl
+            
+        
+        
+        
+        if( lastParents )
+            foreach( lastParents as &parent )
+                if ( el[L] < parent[R] )
+                    parent[children][] = el
+                    break
+                else
+                    array_pop ( lastParents )
+        else                    
+            ret[] = el
+            
+            
+        lastEl &= el
+
+
+    return ret
+
+
+
+
+
+Finalement, je n'ai pas trouvé de méthodologie comme je l'espérais, et j'ai passé bcp de temps sur ce problème.
+Ceci dit, même si je ne rapporte rien de concret sur cet exercice, en interne je me dis les choses suivantes:
+
+
+- trouver/utiliser les leviers qui permettent de conduire le code du point A au point B
+- utiliser les supports visuels comme support de réflection
+- dans une boucle, brain tester la boucle à chaque itération,
+        partir du cas le plus simple et ajouter en complexité en maintenant le bon fonctionnement de la loop
+- dans une boucle, voir si on peut réutiliser le fait que:
+            - les éléments sont parsés l'un après l'autre
+            - oops, c'est tout ce que j'ai trouvé!
+        
+ 
+
+
+
+
+En fait, le code ne fonctionne pas.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

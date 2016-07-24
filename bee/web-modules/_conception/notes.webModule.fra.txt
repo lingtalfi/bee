@@ -1,0 +1,8 @@
+Notes
+===============
+2015-06-01
+
+
+
+Un webModule est un module qui s'utilise dans une WebApplication,
+donc une application avec une partie accessible par le web.

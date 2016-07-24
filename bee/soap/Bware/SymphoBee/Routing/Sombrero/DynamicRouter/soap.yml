@@ -1,0 +1,21 @@
+params:
+    bware:  
+        symphoBee:
+            routing:
+                sombrero:
+                    dynamicRouter:
+                        routes: []
+                        controllerDirs: []                    
+
+services:
+    bware:
+        symphoBee:
+            routing:
+                sombrero:
+                    dynamicRouter:
+                        _class: Bware\SymphoBee\Routing\Sombrero\Router\DynamicSombreroRouter
+                        _calls:
+                            - setSombreroArray( §bware.symphoBee.routing.sombrero.dynamicRouter.routes§ ) 
+                            - setControllerDirs( §bware.symphoBee.routing.sombrero.dynamicRouter.controllerDirs§ ) 
+                            - setServiceContainer( @container ) 
+                    

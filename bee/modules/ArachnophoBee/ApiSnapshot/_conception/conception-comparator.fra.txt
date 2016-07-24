@@ -1,0 +1,170 @@
+Conception
+===============
+2015-05-04
+
+
+
+
+
+Comparaisons d'api snapshots 
+--------------------------------------------
+
+Comparer des snapshots peut éventuellement être utile principalement dans les cas suivants:
+
+- si on veut avoir rapidement un indice sur la compatibilité entre 2 versions d'une même api
+- si on veut automatiser l'écriture d'un log de type "what's new"
+                                        
+                                        
+Quoiqu'il en soit, nous avons un outil de comparaison qui détecte les éléments qui ont été supprimés,
+ceux qui ont été ajoutés, et pour les éléments communs s'ils ont été affectés par une modification.
+
+
+
+
+Le tableau (ou objet?) résultant de la comparaison de 2 snapshots est le suivant:
+v1 et v2 représentent respectivement l'ancienne et la nouvelle version.
+
+
+(<snapshotComparison>)
+- removed:
+----- ?class: tableau des classes supprimées
+----- ?property: tableau des propriétés supprimées (class::property)
+----- ?method: tableau des méthodes supprimées (class::method)
+----- ?parameter: tableau des paramètres supprimés (class::method param)
+
+- added:
+----- ?class: tableau des classes ajoutées
+----- ?property: tableau des propriétés ajoutées (class::property)
+----- ?method: tableau des méthodes ajoutées (class::method)
+----- ?parameter: tableau des paramètres ajoutés (class::method param)
+                 
+                 
+- updated: 
+----- $resolvedClassName: (ssi un des éléments ci-dessous est modifié) 
+--------- ?comments: (seulement si les commentaires de classe ont été modifiés)
+------------- v1: le commentaire en v1 
+------------- v2: le commentaire en v2  
+--------- ?signature: (idem)
+------------- v1: la signature en v1 
+------------- v2: la signature en v2  
+--------- ?dependencies: (idem)
+------------- v1: le tableau des dépendances en v1 
+------------- v2: le tableau des dépendances en v2
+--------- ?properties: (idem)
+------------- $propertyName: 
+----------------- ?comments: (seulement si les commentaires de propriété ont été modifiés)
+--------------------- v1: le commentaire en v1 
+--------------------- v2: le commentaire en v2  
+----------------- ?signature: (idem)
+--------------------- v1: la signature en v1 
+--------------------- v2: la signature en v2
+--------- ?methods: (idem)
+------------- $methodName: 
+----------------- ?comments: (seulement si les commentaires de méthode ont été modifiés)
+--------------------- v1: le commentaire en v1 
+--------------------- v2: le commentaire en v2  
+----------------- ?signature: (idem)
+--------------------- v1: la signature en v1 
+--------------------- v2: la signature en v2
+----------------- ?params: (idem) 
+--------------------- $paramName: (commençant à 0) 
+------------------------- ?name: (seulement si le name du parameter a été modifié)
+----------------------------- v1: le name en v1 
+----------------------------- v2: le name en v2
+------------------------- ?hint: (idem)
+----------------------------- v1: le hint en v1 
+----------------------------- v2: le hint en v2
+------------------------- ?hasDefaultValue: (idem)
+----------------------------- v1: has default value en v1 
+----------------------------- v2: has default value en v2
+------------------------- ?reference: (idem)
+----------------------------- v1: has reference value en v1 
+----------------------------- v2: has reference value en v2
+------------------------- ?variadic: (idem)
+----------------------------- v1: is variadic en v1 
+----------------------------- v2: is variadic en v2
+------------------------- ?defaultValue: (idem)
+----------------------------- v1: default value en v1 
+----------------------------- v2: default value en v2
+------------------------- ?position: (idem)
+----------------------------- v1: position en v1 
+----------------------------- v2: position en v2
+  
+  
+Comme ce tableau est assez long, on pourra l'accompagner d'un utilitaire permettant de l'interpréter.  
+
+
+
+    
+    
+
+
+
+
+
+Fonctionnement interne du comparateur
+-------------------------------------------
+
+Son mode de fonctionnement est logique, mais pas forcément intuitif,
+et c'est pourquoi nous le documentons ici.
+
+
+
+Notre comparateur possède trois modes de comparaison principaux:
+
+    - diff
+            ce mécanisme est utilisé pour comparer les noms de classe, les noms de propriété,
+            les noms de méthode, les noms de paramètres.
+            
+            Il applique deux array_diff successifs permettant de savoir ce
+            qui a été retiré et ce qui a été ajouté d'une version à l'autre.
+            
+            
+    - comparaison
+
+            ce mécanisme ne s'applique qu'aux éléments communs, c'est à dire
+            ceux qui n'ont pas été éliminés par le processus de diff précédent.
+            En effet, si une classe a été retirée, ou ajoutée, il n'y a plus/pas
+            de version à laquelle on peut la comparer, donc la comparaison est inutile.
+            
+            Il compare les propriétés de ces éléments pour les 2 versions:
+            
+                - commentaires de classe
+                - signatures de classe
+                - dépendances de classe
+                - commentaires de propriété
+                - signatures de propriété
+                - commentaires de méthode
+                - signatures de méthode
+                - ?tableau des paramètres, uniquement si la signature de méthode est différente                        
+    
+                    
+                
+
+
+Même si cette approche est logique et fonctionne, il y a une subtilité au niveau de la conception.
+Cela concerne une légère divergence entre l'intention de l'auteur de modifier le nom d'un élément (une classe par exemple)
+et l'interprétation du comparateur:
+
+du point de vue du comparateur:
+    si dans le dossier version 1, il y a une classe Poisson,
+    et que dans le dossier version 2, il n'y a plus de classe Poisson, mais il y a une classe Poissons à la place,
+    le comparateur dira que la classe Poisson a été retirée, et que la classe Poissons a été ajoutée.
+    
+Cependant, du point de vue de l'auteur, peut être que ce changement était pensé comme la correction d'une faute
+d'orthographe par exemple, ou de manière plus générale comme le renommage de la même classe.
+Malheureusement, notre comparateur n'a pas de moyen de connaître l'intention de l'auteur.
+ 
+Les conséquences de cela sont que la phase de comparaison n'aura pas lieu, puisque le comparateur pensera que ce ne sont
+pas les mêmes classes.
+
+
+
+
+ 
+ 
+    
+    
+    
+    
+

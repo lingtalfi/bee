@@ -1,0 +1,131 @@
+Conception
+===============
+2015-04-30
+
+
+
+
+
+Compatibility Snapshot 
+--------------------------------------------
+
+
+Compatibility fonctionne avec les modules conformes à la convention sdp0.
+Il permet de donner un indice de compatibilité pour deux versions A et B d'un même module.
+
+
+
+
+
+
+### Nomenclature
+
+    - class compatibility signature:
+            c'est une string organisée comme une signature de classe, et qui contient toutes 
+            les informations disponibles d'une classe parmi:
+                
+                        - son nom résolu
+                        - est-ce un trait ?
+                        - est-ce une interface ?
+                        - est-ce une classe abstraite ?
+                        - quel parent ?
+                        - quelles interfaces ? (classées par ordre alphabétique ascendant)
+                        - quels traits? (classées par ordre alphabétique ascendant)
+                        
+                        
+            Exemples:
+                        - class My\Foo
+                        - abstract class My\Foo extends My\Pitch implements Her\Pitch, Her\Face uses His\Nose, His\Arm
+                         
+                        
+                        
+    - property compatibility signature:
+            la signature d'une propriété de la classe, présentée telle que dans le code, et contenant les informations suivantes:
+                                                        
+                        - nom de la propriété
+                        - visibilité                                                         
+                        - est-elle statique ?                                                         
+                        - valeur par défaut, telle qu'écrite dans le code
+                                                                                
+            Exemples:
+                        - public static $doo = null
+                        - protected $zoo 
+                                                
+    - method compatibility signature:
+            la signature d'une méthode, présentée telle que dans le code, et contenant les informations suivantes:
+                                                        
+                        - nom de la méthode                                                        
+                        - visibilité                                                         
+                        - est-elle statique ?                                                        
+                        - est-elle abstraite ?                                                        
+                        - arguments tels qu'écrits dans le code, avec noms de classe résolus pour les hint
+                                                                                
+            Exemples:
+                        - public static saySomething(His\Word $word = null)
+                        - abstract protected doSomething($action, $log = false)
+                        
+
+                                          
+                        
+                 
+                            
+    - compatibility snapshot:
+            tableau contenant les informations pour chaque classe d'un élément:
+                                                    
+            (<apiSnapshot>):
+            - classes: (tableau dont les clés sont triées par ordre alphabétique croissant)                                                                
+            ----- $resolvedClassName: 
+            --------- comments: string, les commentaires de la classe, ou empty string par défaut                                                                                                                                                    
+            --------- signature: <class compatibility signature>                                                                                                                                                    
+            --------- dependencies: tableau contenant les nom résolus des classes (mot clé use) situées à l'extérieur 
+                                                        du namespace du module et classés alphabétiquement
+            --------- properties: (tableau dont les clés sont triées par ordre alphabétique croissant)
+            ------------- $propName:                                                                                           
+            ----------------- comments: commentaires de la méthode                                                                                        
+            ----------------- signature: <property compatibility signature>
+                                                                                                                                               
+            --------- methods: (tableau dont les clés sont triées par ordre alphabétique croissant)                                                                                          
+            ------------- $methodName:                                                                                           
+            ----------------- comments: commentaires de la méthode                                                                                        
+            ----------------- signature: <method compatibility signature>                                                                                        
+            ----------------- args: (tableau de <method argument info>, triés dans l'ordre de leur apparition dans la signature de la méthode)
+            --------------------- (arg):
+            -------------------------- name: string, nom de la variable (avec le dollar devant)
+            -------------------------- hint: mixed|null, la valeur du hint (array, ou le nom de la classe résolu) ou null si non défini
+            -------------------------- hasDefaultValue: bool
+            -------------------------- reference: bool
+            -------------------------- variadic: bool
+            -------------------------- defaultValue: mixed|null, la valeur par défaut si définie, null si non définie                                                                                               
+                                                    
+                            
+                            
+                        
+                        
+### Test de compatibilité à l'aide des snapshots                        
+                        
+                        
+    On peut utiliser l'algorithme suivant pour déterminer si B est compatible avec A.
+            
+    Le retour est true, sauf si modifié en cours de route.
+    On fait les snapshots pour A (sA) et B (sB).
+    
+    On compare les snapshots:
+        - comparaison des noms de classes:
+                si un nom de classe présent dans sA est manquant dans sB, retour=false
+        - comparaison des signatures de classes:
+                toutes les signatures de classe de sA doivent être présentes à l'identique dans sB, sinon retour=false
+        - comparaison des dépendances de classes:
+                les dépendances doivent être les mêmes, sinon retour=false
+        - comparaison des propriétés pour chaque classe:
+                si la signature d'une propriété est modifiée dans sB, retour=false
+        - comparaison des méthodes pour chaque classe:
+                si une méthode est manquante dans sB, retour=false
+                si une méthode est modifiée, on tolère l'ajout d'arguments optionnels, mais pour toute autre modification retour=false 
+    
+    
+    On renvoie la valeur de retour.        
+    
+    
+    
+    
+    

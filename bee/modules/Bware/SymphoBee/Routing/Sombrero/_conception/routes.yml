@@ -1,0 +1,164 @@
+
+#----------------------------------------
+# URI MATCHES ARE DEFAULT
+#----------------------------------------
+# in this document, the 7 containers are: post, get, session, cookie, header, server, file
+route1:
+    match: {all+}
+    controller: other\oi
+route2:
+    match: /home/{greedy+}
+    controller: other\oi  
+route3:
+    match: /home/{nonGreedy}
+    controller: @callableProvider->get() # only with dynamic sombrero router
+    controller: # using instantiation args for the controller
+        - Zobi\FrontController->doThings
+        - 
+            0: firstArg
+            1: secondArg
+route4:
+    match: /home/{nonGreedy}/{boo}/doris
+    controller: Zobi\FrontController->doThings
+    args: # arguments for the controller, 
+        # the key are the name of the parameters of the Controller's method,
+        # the value is either:
+        # - the value of the variable (by default)
+        # - the value from a container, or null if not found,    
+        #       using the notation:   
+        #                 $post:my.var 
+        #                 $uri:myVar 
+        #                 $myVar        (the implicit container is uri) 
+        #       Possible containers are the 7 containers
+        #                 
+        # - a special value: the ServiceContainer or the Route, or the HttpRequest
+        #           @@container
+        #           @@route
+        #           @@request
+        #           
+        # Because array form is allowed for values, we use the simple escaping mechanism here on          
+        # the first position only.          
+        #           
+        boo: "" 
+        anyKey: $nonGreedy 
+        uriVars: $uri  
+        allPost: $post  
+        somePostVar: $post:doo.foo # using bdot
+        #          
+        special: @@container  
+        
+        # references to services come from biscotte notation.
+        # Unfortunately, they won't work well with static sombrero router
+        # To compensate this, we can use the double arobase notation
+        aBiscotteServiceInstance: @a.real.service   # won't work with static sombrero router 
+        aBiscotteServiceInstance: @@a.real.service  # will work with static & dynamic sombrero routers 
+                        
+                
+        
+        # 
+        theMatchingRoute: @@route  
+        httpRequest: @@request
+        ## escaping examples
+        httpRequest: \@@request
+        uriVars: \$uri  
+        
+          
+    # context are additional info added by the maintainer, just in case here would be the best place
+    # this is a regular array, services references are allowed, but only using the double arobase notation
+    context:  
+        cmsPage: doo
+        lang: fr
+        something: @@anotherService
+
+      
+#----------------------------------------
+# EXPANDING ROUTES, WE CAN TEST HTTP_REQUEST'S OTHER PROPERTIES
+#----------------------------------------      
+route5: # expanded
+    args: 
+        # with expanded tags, args of the controllers can come from other contexts:
+        # for instance they can come from the post variables, or the session
+
+        argName:
+            container: uri|post|get...
+            value: zeValue
+
+    match: 
+        uri: /home/{nonGreedy}/{boo}/doris  # greedy means slash greedy
+        uri: /home/\{nonGreedy}/\{boo}/doris  # simple escaping mechanism is used
+        requirements: # that only applies to uri container, because other containers can use regexes
+            nonGreedy: !^d+$!i
+        scheme:  http  # or https
+        
+        # the host mechanism also works for ip and port
+        host:  testAgainstString
+        host:  @g:testAgainstBglob
+        host:  @p:!testAgainstPattern!iU
+          
+        host:  !testAgainstString # negative matching
+        host:  !@g:testAgainstString # negative matching for glob
+        
+        # for most cases, it's more convenient and intuitive to use a string directly
+        # however, in sombrero, unlike many other systems, we do not escape a special symbol with a backslash.
+        # If we want to match against a string that looks like a special string, we enclose it in an array.
+        # This applies to host, port and ip
+        # See the example below
+        host:  [!testAgainstString] # positive string matching !testAgainstString
+        
+        
+        # note: my first idea was to use bglob matching per default, 
+        # however, this would not be optimized from the perspective of the performances. 
+        # the @g and @p notation exist so that the generated code is optimized, as
+        # it would if the dev would code it herself
+        
+        
+        
+        
+        post:  # works also for get, session, cookie, header, server, file
+               # Note: bdot is used only for post, get, session and file
+                
+            - definition   # key definition must exist
+            - !definition   # key definition must not exist            
+            - user=my value  # user must exist AND equal my value
+            - user=@g:my value  # user must exist AND match my value using bglob my value
+            - user=@p:!my value!iU  # user must exist AND match my value using pattern !my value!iU
+             
+            - user!=my value  # key user must exist AND its value must not be equal to my value, the bglob and pattern variations apply
+            - ?user=my value  # if key user exists, then its value must be equal to my value, the bglob and pattern variations apply
+            - ?user!=my value  # if key user exists, then its value must not be equal to my value, the bglob and pattern variations apply
+            
+            - image.size = 10  # key uses bdot notation
+            
+            - image.size < 10  # numeric comparison operators are allowed: <, >, <=, >=.
+                               # @g and @p matching are only allowed with equal operator.
+            #----------------------------------------
+            # sombrero's escape mechanism use the array form instead of backslash
+            #----------------------------------------                    
+            - [!doo] # key "!doo" must exist                    
+            - [user=my value] # key "user=my value" must exist                    
+            - [user=@b:my value]  # user must exist AND match "user=@b:my value"
+            
+            # we can also use the 3-4 entries form to protect individual part that would be otherwise confusing
+            # when in doubt, we can always use the 3-4 entries form: key, operator, value, isMandatory=true
+            - [my<my>my, <, 6] 
+            - [my=my, =, do=od] 
+            - [my=my, =, do=od, false] 
+              
+              
+      
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

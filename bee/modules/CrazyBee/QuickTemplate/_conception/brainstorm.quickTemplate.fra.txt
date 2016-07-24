@@ -1,0 +1,44 @@
+Brainstorm
+==================
+2015-05-27
+
+
+
+
+
+Le design et le code sont deux parties bien différentes d'une application web.
+
+
+Bien souvent, pendant la phase de construction d'une application, 
+les dev ne prêtent que très peu d'attention au design et s'occupent du côté fonctionnel.
+
+Si le dev voulait créer une belle page, cela lui prendrait un certain temps, 
+temps qu'il n'a pas forcément.
+
+L'idée de ce bModule est de fournir au dev un moyen de mettre en place des pages moins moches qu'un texte en arial,
+en très peu de temps.
+
+L'idée est de pouvoir faire qq chose comme:
+    
+    
+    echo QTemplate::create->get(contact)->render();
+
+
+Si l'idée plaît, les dev pourront ajouter leurs propres templates et on aura ainsi plus de templates etc...
+    
+    
+    
+Les templates utilisent des tags, encadrés par des accolades, comme dans {foo}.
+Si un tag n'est pas rempli par le dev, on a le mode ou les tags sont remplacés par une chaîne vide (pour ne pas laisser apparaître
+des chaînes de caractères moches comme {foo}), et un mode ou justement elles sont affichées telles quelles, de manière à ce que le dev puisse 
+les repérer facilement.
+    
+    
+Les templates sont organisés par groupe représenant en général le travail d'un un "designer", ou bien groupés par fonction.
+On peut switcher de groupe, l'appel à la méthode get se fait dans le contexte du groupe courant.
+En général, le groupe sera un dossier (sauf si les templates ne sont pas stockés sur le fileSystem).
+    
+On peut changer le groupe par défaut, de manière permanente ou ponctuelle.    
+    
+    
+    

@@ -1,0 +1,100 @@
+Réflections
+===============
+2015-04-09
+
+
+
+@2: 2015-04-10: pre parser, apply map, une sorte de nested model, profondeur d'un élément
+   
+        Le préparser essaie de trouver des séquences de tokens dans un tableau de tokens donné.
+        Les séquences peuvent être récursives, comme dans l'exemple suivant dans lequel la séquence que l'on 
+        cherche est un tableau php:
+        
+                $a[$o[$x[5]]]
+        
+        Si on note les positions de début et fin de chaque séquence on obtient ce qu'on appelle un map dans la terminologie
+        du préparseur.
+        Appliquer ce map en gérant la récursivité est une mission de applyMap, et cette réflexion apporte des outils d'analyse
+        permettant de réussir notre implémentation.
+        
+        
+        Soit map un tableau contenant les positions des séquences trouvées, chaque entrée du tableau contient une position de début 
+        et une position de fin.
+        Mon but est de conserver l'approche simpliste qui permet d'appliquer le map avec un simple foreach(map),
+        plutôt que de faire une approche réellement récursive qui impliquerait probablement au moins deux méthodes.
+        
+        Pour cela, on peut peut être utiliser la profondeur d'un élément.
+        Aussi la première question est: comment récupérer la profondeur d'un élément ?
+         
+         
+        Foreach agissant de manière linéaire,
+            Soit depth la profondeur d'un élément.
+            A chaque fois que l'on parse un élément, on stocke sa limite droite (position de fin) dans un tableau.
+            Pour connaître la profondeur d'un élément, on prend sa limite gauche, et on la compare à chaque élément du tableau
+            des limites droites.
+            Chaque fois que la limite gauche est inférieure à une limite droite, on ajoute +1 à depth.
+        
+        
+        
+        
+        En fait, c'est plus simple avec récursion... bref ... c'est pour moi la tournée ...
+   
+   
+   
+@1: 2015-04-09 : use case: resolving concatenated strings
+
+    
+    //------------------------------------------------------------------------------/
+    // DEMYSTIFIER TOOL
+    //------------------------------------------------------------------------------/
+    // by arachnophoBee -- 2015-04-09
+    
+    $file = "hack.sample.php";
+    $content = file_get_contents($file);
+    $tokens = token_get_all($content);
+    
+    
+    //------------------------------------------------------------------------------/
+    // UC1: RESOLVING THE CONCATENATED STRINGS
+    //------------------------------------------------------------------------------/
+    $string = "all the file content";
+    $x = new X();
+    $safeDef = 'non evaluable';
+    $vars = $x->getSafeVars($safeDef);
+    /**
+     * vars:
+     *      r76 = "gibeoz eoirhoizehro"
+     *      GLOBALS['vutton6'] = $r76["45"] . $r76["sss"];
+     *
+     *
+     */
+    $varDictionary=$vars;
+    $betterString = $x->unconcatenate($string, $varDictionary);
+    a($betterString);
+
+
+    Variante:
+
+    //------------------------------------------------------------------------------/
+    // RESOLVING THE CONCATENATED STRINGS
+    //------------------------------------------------------------------------------/
+    $string = "all the file content";
+    $x = new X();
+    
+    /**
+     * About filters:
+     *           if a filter returns true, it keeps the thing
+     *           if a filter returns false, it throws out the thing
+     */
+    $outFilter = 'non evaluable returns true';
+    $vars = $x->getVars($safeDef, $outFilter);
+    /**
+     * vars:
+     *      r76 = "gibeoz eoirhoizehro"
+     *      GLOBALS['vutton6'] = $r76["45"] . $r76["sss"];
+     *
+     *
+     */
+    $varDictionary=$vars;
+    $betterString = $x->unconcatenate($string, $varDictionary);
+    a($betterString);

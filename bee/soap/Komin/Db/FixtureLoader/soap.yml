@@ -1,0 +1,7 @@
+komin:
+    db:
+        fixtureLoader:
+            _class: Komin\Component\Db\FixtureLoader\BabyYamlPdoMysqlFixtureLoader
+            _calls:
+                - setPdoInstance (@komin.db.pdo.pdoInstances->get()) 
+                

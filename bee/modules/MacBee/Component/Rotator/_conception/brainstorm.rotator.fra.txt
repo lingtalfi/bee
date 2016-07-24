@@ -1,0 +1,128 @@
+Brainstorm
+==================
+2015-07-02
+
+
+
+Motivation
+--------------
+Rotator.
+Besoin d'origine: après avoir perdu mes sticky notes, j'ai décidé de créer un script qui permettrait de sauvegarder
+la base de données des sticky (~/Library/StickiesDatabase) au moins une fois par jour.
+
+Sur mac yosemite, on peut utiliser le système launchd qui permet de lancer un script au moment où le user
+se loggue, donc en gros chaque fois que le computer est allumé. 
+Voilà pour la motivation.
+
+
+
+Fonctionnement
+--------------------
+    
+Rotator est codé en php, car c'est mon language préféré.
+Il utilise le framework bee.
+
+L'événement essentiel pour Rotator est la rotation.
+Il s'agit de la rotation d'un fichier (pour l'instant).
+
+La rotation d'un fichier (pour Rotator), c'est l'action de faire une copie de ce fichier 
+dans un dossier appelé backupDir. Le nom de la copie est configurable par l'utilisateur,
+et par défaut, la date est ajoutée au nom du fichier (cela permet d'avoir une idée générale
+de quand le fichier a été sauvegardé, et aussi cela facilite la recherche si on veut faire
+une recherche par rapport à une date).
+
+La rotation n'est effectuée QUE SI les conditions de rotations (appelées les conditions) sont vérifiées.
+
+On a donc un système simple que l'on peut résumer avec ce petit algorithme:
+
+    if(condition)
+        rotate
+        
+        
+Voilà, c'est la base de Rotator, simple mais il faut le savoir.
+
+        
+        
+Configuration
+-----------------
+
+Pour contrôler Rotator, on utilise un fichier de config au format babyYaml.
+J'utilise cette technique, car je la trouve personnellement très pratique (et permet d'ajouter
+des fonctionnalités quand on en a besoin très facilement).
+
+Voici la structure du fichier de configuration:
+Les valeurs par défaut (indiquées après le symbol égal) sont utilisées si la clé est omise.
+Si une clé n'a pas de valeur par défaut, elle est obligatoire; si lorsque Rotator est lancé
+et qu'une clé obligatoire n'est pas renseignée alors une erreur de configuration sera lancée.
+
+
+Théoriquement, Rotator peut gérer plusieurs ressources différentes.
+On va créer une config par ressource.
+Chaque ressource a un identifiant qui est la clé d'un tableau ayant la structure suivante:
+
+
+
+                    
+                    
+- pathName: string, le pathName de la ressource sur laquelle il faut appliquer la rotation
+- backupDir: string, le pathName du dossier dans lequel seront stockées les backups.
+                            Si le dossier n'existe pas encore, il sera créé lors de la première rotation.
+- nbBackupMax: int=-1, le nombre maximum de backups que doit contenir le dossier backupDir.
+                        La valeur spéciale -1 (par défaut) signifie pas de limite.                                    
+                    
+- compression: null|zip (=zip), le mode de compression à utiliser sur les fichiers sauvegardés.
+                                Si null, alors aucune compression n'est utilisée.
+                                zip est pour l'instant la seule alternative.
+- namingSystem: auto, répond à la question: comment nommer les fichiers sauvegardés ?
+                Pour l'instant il n'y a pas le choix, c'est Rotator qui nomme les fichiers en ajoutant
+                la date derrière.
+                
+- conditions: null|[] (=null), tableau de conditions.
+                        Si null, alors la condition est toujours valide.
+                        (ça colle parfaitement avec mes besoins, et c'est pourquoi pour l'instant
+                        aucun autre système n'est implémenté)
+
+                        Chaque condition est elle-même un tableau avec la structure suivante:
+                            0: conditionType
+                            1: conditionParam
+                            ?2: conditionParam 2
+                            ?x: conditionParam x
+                        
+                        conditionType: ifSize, ifTime
+                                        (note: ces systèmes ne sont pas implémentés pour l'instant, mais
+                                        je voulais définir la structure quand même)                                                                                    
+                            
+- conditionMode: and|or (=or)
+                        Lorsque conditions est un tableau contenant plus d'une entrée, comment détermine-t'on
+                        si la rotation doit être effectuée ou pas ?
+                        
+                        and: la rotation n'est effectuée que si toutes les conditions sont remplies
+                        or: la rotation est effectuée si au moins l'une des conditions est remplie
+                        
+                        
+- emptyFile: bool=false, est-ce que Rotator doit vider le fichier original après une rotation.                        
+                        
+                        
+                        
+Mot de la fin
+-------------------
+                            
+Bon voilà.
+Je pense avoir dit à peu près tout ce que je voulais.
+Cette première version sera la version 1.0.
+J'espère qu'elle sera utile à d'autres personnes.
+                            
+                        
+            
+                    
+                
+                    
+                    
+                    
+                    
+        
+        
+    
+    
+    
+    

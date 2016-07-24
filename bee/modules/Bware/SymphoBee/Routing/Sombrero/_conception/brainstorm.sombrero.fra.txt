@@ -1,0 +1,207 @@
+Brainstorm
+====================
+2015-06-01
+
+
+
+
+Sombrero est une notation qui permet d'écrire un système de routage à l'aide d'un tableau php.
+Un système de routage, dans ce document, c'est l'action de trouver un Controller et ses arguments, 
+par rapport à une HttpRequest (du module bware.symphoBee) donnée.
+
+Le Controller est un simple callable.
+Note:
+    Une interface ControllerInterface est fournie par le module bware.symphoBee,
+    et nous recommandons de l'implémenter, même si actuellement elle ne contient aucune méthode.
+    
+
+
+
+Sombrero est un nom inventé, inspiré de:
+
+    - Sympho
+    - (om)?
+    - Bee
+    - REquest
+    - ROuter
+    
+
+
+
+
+La notation
+-------------------
+
+Lire le fichier routes.yml qui montre tous les exemples et nuances de la notation.
+
+
+
+
+Chaque entrée du tableau représente une route.
+
+
+Voici la structure d'une route:
+
+- match: string|array
+        contient les informations nécessaires pour effectuer le test (voir si la HttpRequest matche ou pas) 
+- controller: mixed
+        contient les informations permettant au routeur d'appeler le Controller
+- args: array
+        contient le tableau de variables duquel les arguments du Controller sont tirés
+- context: array
+        contient le tableau de variables duquel les arguments du Controller sont tirés
+        
+        
+        
+        
+Le match
+-------------
+
+
+
+On peut écrire un match de 2 manières: string ou array.
+
+
+### notation array
+
+La notation array est beaucoup plus puissante, voici sa structure:
+
+- ?uri: string,
+            /home/{greedy+}
+            /home/{nonGreedy}/{boo}/doris
+                            
+        Greediness
+        --------------
+        Les {tags} peuvent être greedy ou pas.
+        Dans ce contexte, le terme greedy représente l'aptitude d'un tag à manger ou pas les slashes.
+        Un tag non greedy s'arrêtera au premier slash trouvé.
+        Par défaut les tags ne sont pas greedy.
+        
+        Tags en regex
+        -----------------
+        Voici la correspondance des tags en regex php:
+        
+            {notGreedy}  => ([^/]*+)
+            {greedy+}  => ([\s\S]*+)
+            {/possiblyStartingWithSlash}  => (?:/?([^/]*+))
+            
+            
+        Conversion des tags en variables de contexte
+        -------------------------------------------------
+        Si le match réussit, les tags de l'uri sont convertis en variables dans le tableau context.
+        Les valeurs obtenues sont de type string, sauf dans le cas suivant:
+            si un tag avec slash optionnel matche la chaîne vide
+            ET si une valeur par défaut est définie dans par le dev dans le tableau context,
+            alors c'est la valeur par défaut qui est utilisée: elle peut être null, ou autre.
+            
+            Exemple:
+                Le tableau context contient la variable:
+                        id: null
+                Le dev a défini une route avec pour uri:
+                        /blog{/id}
+                et l'uri de la HttpRequest est /blog.
+                Dans ce cas, id vaut null, et non pas la chaîne vide.                                                                                    
+        
+- ?scheme: http|https,
+- ?host: string,
+            matche le host de la request avec un bglob ou une regex php.
+            Par défaut, bglob est utilisé.
+            On indique qu'on utilise une regex php en écrivant un @ en premier caractère.
+            Si les deux premiers caractères sont \@, alors c'est une chaîne de caractères commençant par un arobase littéral.
+            
+                - host: CeciEstUnBlob
+                - host: @!ceci est une regex!U
+                - host: \@!ceci est une chaîne normale commençant par une arobase littéral!U
+- ?ip: string,
+            même mécanisme que pour host
+- ?port: string,
+            même mécanisme que pour host
+- ?post: array            
+
+                
+        
+        
+- ?requirements: array,
+                    ce tableau représente des conditions supplémentaires à appliquer sur les tags ayant matché l'uri
+
+
+
+
+
+
+        
+Le Controller
+-------------
+
+namespace finding: only works if:
+// - the opening php tag is <?php
+// - there is only one namespace per file
+// - the file doesn't end with the closing php tag
+
+
+Avec dynamicSombreroRouter, il est possible de passer des instances, 
+mais pas avec staticSombreroRouter qui n'accepte que la notation string (contraintes techniques).
+
+
+                                
+                                
+Le context
+-------------        
+
+
+
+
+
+
+
+Les questions philosophiques au coeur de la conception
+-----------------------------------------------------------
+
+1. 
+Est-ce qu'on permet au Controller d'avoir des arguments libres,
+ou bien on lui passe la HttpRequest et le ServiceContainer et basta.
+
+Avantages d'un Controller avec des arguments choisis par le code:
+        - pratique pour le dev,
+                bien que cela n'empêche pas que le dev doit écrire la route également.
+                
+Avantages d'un Controller avec des arguments stables:
+        - nettement plus simple au niveau de la conception, les données sont accessibles via HttpRequest au niveau du code
+                du Controller.
+                Le code du routeur est plus simple, et donc plus rapide.
+                
+
+Personnellement, j'ai une petite préférence pour la première solution, car on économise une ligne par argument au niveau du 
+                code du Controller.
+
+
+----
+2. Si on autorise l'écriture d'arguments libres provenant du "container" uri dans le Controller, ne devrait-on pas être 
+        capable d'injecter également des variables provenant d'autres containers tels que post, get, ou headers, session, cookie ?
+
+
+
+
+Notes d'implémentation
+----------------------------
+Nous avons fait une version statique et une version dynamique.
+Bien que la versions statique soit prévue pour être optimisée au niveau des perfs,
+nous recommandons d'utiliser la version dynamique tant qu'une perte de perfs ne se fait pas
+sentir,
+car la version statique a le désavantage suivant:
+
+    - elle hardcode le chemin vers le fichier de classe du controller,
+            ce qui rend le code peu portable.
+            
+
+Note: 
+    Sombrero n'est qu'un système de routage parmi plein d'autres.
+    Si les performances sont vraiment un problème, nous recommandons de penser à un système
+    de routage personnalisé qui traite les requêtes http non pas avec des regex, 
+    mais avec du code php brut (plus rapide), lorsque cela est possible.
+            
+            
+            
+
+
+

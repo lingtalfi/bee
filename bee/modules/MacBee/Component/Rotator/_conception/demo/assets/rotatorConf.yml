@@ -1,0 +1,9 @@
+stickyDatabase:
+    pathName: /Users/pierrelafitte/Library/fakeSticky.txt
+    backupDir: /Users/pierrelafitte/Library/fakeRotator
+    nbBackupMax: 10
+    compression: zip
+    namingSystem: auto
+    conditions: null
+    conditionMode: or
+    emptyFile: false

@@ -1,0 +1,84 @@
+Analyse
+============
+2015-04-06
+
+
+
+
+Je ne sais pas pourquoi je m'étais dit que le système le plus puissant pour trouver une expression
+dans un tableau de tokens était le système de regex avec backtracking.
+Probablement car il est plus complexe.
+
+Voulant implémenter ce système, c'est probablement par fainéantise que m'est venue l'idée de transposer
+le tableau de tokens en une expression linéaire, de manière à pouvoir utiliser le système de regex de php
+déjà tout fait plutôt que d'en recréer un.
+
+Puis, imaginant mon premier use case dans lequel je cherche le pattern représentant un assignement de variable,
+je me rends compte que même avec le système de regex de php, ce n'est pas pratique du tout.
+
+En effet, l'assignement de variable ressemble au motif suivant:
+ 
+    $o = 6;
+    $o = function(){ echo "pou"; };
+    
+    
+Dans le premier cas, on a pas trop de problèmes,
+mais dans le deuxième cas, on peut imaginer qu'une fonction contient un nombre arbitraire de points-virgules
+imbriqués, ce qui nous obligerait à écrire une regex très complexe (je ne sais même pas si j'y arriverais)
+pour un simple assignement.
+
+C'est pourquoi je vais partir sur un système en théorie plus limité, mais au moins qui saura résoudre ce problème
+particulier de manière bcp plus simple: un système de pattern elements, chaque pattern element est un objet qui
+peut avoir des "pouvoirs" particuliers.
+En l'occurrence, le problème précédent est traité simplement avec un pattern element de type AllCharsUntil,
+qui mangerait tous les tokens jusqu'au point-virgule, et cet objet aurait une option ignoreBraces afin de régler
+le problème de la récursion.
+
+Pour cet objet, plutôt que de partir sur des suppositions théoriques, je vais développer en mode incrémental,
+et créer uniquement les objets dont j'ai besoin personnellement.
+
+On arrivera donc forcément à un objet très limité, qu'il faudra étendre à chaque nouvel élément de pattern ajouté.
+Mais au moins, cela répondra à mes besoins.
+Conscient des limitations de cet objet, je vais le confiner dans un dossier afin qu'il soit clair pour tout le monde
+que cet objet n'est pas souple (dans le sens évolutif).
+    
+    
+    
+En fait, après un petit essai, je me trouve embarrassé car je cherche maintenant à tester une concaténation de grandeur arbitraire,
+par exemple:
+
+        $o = "ss" . $op . "jpo";
+        
+        
+Et je trouve les regex bcp plus adaptées.
+Plutôt que de tenter d'implémenter cela avec mon système, je vais utiliser le système de réutilisation des regex php dont je parlais.
+Mon système sera donc hybride: permettant de changer de méthode en fonction de la tâche; les regex étant généralement adaptées, 
+sauf pour qq cas particuliers comme décrit ci-dessus.
+
+Par rapport au système de regex avec tokens, je vais inventer des tokens supplémentaires pour tous les caractères qui autrement sont des strings
+du point de vue de php. Cela permettra de bénéficier de toute la puissance des regex sans trop d'efforts de ma part:
+
+    - (    =  T_LEFT_PARENTHESIS
+    - )    =  T_RIGHT_PARENTHESIS
+    - [    =  T_LEFT_BRACKET
+    - ]    =  T_RIGHT_BRACKET
+    - {    =  T_LEFT_CURLY_BRACKET
+    - }    =  T_RIGHT_CURLY_BRACKET
+    - .    =  T_DOT
+    - ;    =  T_SEMI_COLON
+    - ,    =  T_COMMA
+    - %    =  T_PERCENT
+    - /    =  T_FORWARD_SLASH
+    - -    =  T_HYPHEN
+    - +    =  T_PLUS
+    - *    =  T_STAR
+    - =    =  T_EQUALS
+
+
+
+
+
+
+
+
+

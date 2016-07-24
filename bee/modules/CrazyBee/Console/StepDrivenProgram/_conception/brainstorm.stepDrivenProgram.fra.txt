@@ -1,0 +1,116 @@
+Brainstorm
+================
+2015-05-18
+
+
+
+
+
+
+Dans cette conception, un programme est un composé d'un ensemble de steps.
+
+Un step exécute une petite partie du programme comme par exemple demander à l'utilisateur son nom, 
+ou afficher la somme de deux nombres.
+
+L'utilisateur configure les steps.
+
+L'un de ces steps s'appelle main et est exécuté en premier.
+Le cheminement des steps n'est pas forcément linéaire, mais peut être modifié dynamiquement, 
+en fonction des réponses de l'utilisateur par exemple.
+
+
+C'est pourquoi il y a une logique de cheminement des steps.
+Cette logique est gérée par le stepProcessor.
+Les steps portent sur eux l'information de cheminement, car l'utilisateur doit être maître du cheminement des steps.
+ 
+ 
+ 
+ 
+ 
+ 
+StepProcessor
+    - execute()
+            exécute le step main, ou lance une exception si ce step n'existe pas
+            
+    - registerStep ( name, Step )
+    - setEnvironment ( Environment )
+    - getEnvironment ( )
+                
+Step
+    + head                
+    + actions                
+    + tail                
+    + goto   
+                 
+                 
+        Le head et le tail sont des informations qui sont affichées directement à l'écran, inconditionnellement,
+        et respectivement avant et après l'exécution des actions.
+        
+        Les actions sont des callbacks créés par l'utilisateur.
+                        
+                        void        callable ( Step, Environment )
+        
+        
+        Le goto porte l'information de redirection du step.
+        
+        Une caractéristique importante de ce design est que le tail et le goto peuvent être modifiés 
+        dynamiquement par les actions.                                 
+                
+                
+                
+Environment
+    
+    + variables
+    
+        Par convention, on réserve les variables commençant par deux underscores au système.
+        Cela permet à l'utilisateur d'utiliser un underscore pour des raisons personnelles, en plus des variables normales.
+
+    
+
+
+Aller plus loin:
+    interfaçage de plusieurs programmes ensemble,
+            la notion de namespace pour les noms de steps.
+            Cela doit être géré par le processor?
+            
+            
+            Question 1
+            -----------------
+            Si on a plusieurs programmes,
+            a-t'on un processor par programme ?
+            
+                oui, c'est plus propre, et surtout moins compliqué.
+                
+                
+            Idée: ajouter une section programs dans le config.
+            
+            
+            parameters
+            programs:
+                    myExternalProgram: path/to/config.yml
+            services
+            steps
+            
+            Puis créer une variable d'environnement 
+                __program
+                    qui contient ces programmes,
+                    et permettre au processor d'invoquer les programmes externes,
+                    à l'aide d'un invocateur?
+            
+            
+            
+            Question 2: qui créé l'environnement à l'origine ?
+            -----------------------------------------------------
+            QQn d'autre.
+            L'environnement est passé au processeur, car dans le cas
+            de plusieurs programmes, il doit être transmis d'un programme à l'autre.
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            

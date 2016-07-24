@@ -1,0 +1,146 @@
+Brainstorm
+===============
+2015-05-01
+
+
+
+
+Armés du tableau compatibility snapshot, on doit être en mesure de déterminer
+non seulement si une version B est compatible avec une version A,
+mais également quelles ont été les modifications apportées.
+
+
+Connaître les modifications apportées est plus intéressant que juste
+savoir si les 2 versions sont compatibles,
+car on peut par exemple utiliser les modifications apportées dans un processus
+d'écriture semi-automatisée des logs entre les 2 versions (la section what's new
+que l'on voit parfois).
+
+
+
+
+
+- Ce qu'il est possible de faire, et ce qu'il n'est pas possible de faire ?
+
+
+Au niveau des classes
+
+
+    Avec les noms des classes
+    
+        On a les noms des classes des 2 versions.
+        On peut donc savoir quelles classes ont été supprimées (de A à B),
+        et quelles classes ont été ajoutées.
+    
+        Malheureusement, 
+        on n'a aucun moyen d'estimer qu'une classe a évolué en une autre,
+        autrement dit, quels sont les mouvements originellement pensés par l'auteur.
+        C'est à dire que si dans la version A on avait une classe Boat,
+        et que dans la version B cette classe n'existe plus, mais on a à la place
+        une classe SuperBoat,
+        l'intuition humaine nous dit que Boat a évolué vers SuperBoat,
+        mais au niveau de l'analyse froide, on ne peut pas s'avancer sur les intentions de l'auteur;
+        peut être que Boat a été supprimée et que SuperBoat n'a peu ou rien à voir avec
+        l'ancienne classe Boat.
+        On est donc obligé de dire que:
+        
+                - Boat a été supprimé
+                - SuperBoat a été créé
+                
+        C'est une limitation de notre outil d'analyse.
+        On pourrait essayer d'insuffler un mécanisme d'intuition artificielle, mais
+        dans mon implémentation, je ne l'ai pas fait pour ne pas complexifier le système.
+        
+        
+        Revenons à nos moutons.
+        On a les classes retirées, et les classes ajoutées.
+        Et par déduction, toutes les classes restantes sont celles qui sont communes
+        aux 2 versions.
+        Pour ces classes communes, on peut faire des comparaison sur les commentaires,
+        les signatures, et les dépendances.
+        Notons que pour les signatures, si une modification est détectée,
+        elle concerne forcément une modification sur autre chose que le nom de classe
+        puisque nous traitons les classes communes (partageant les mêmes noms par définition);
+        donc les autres caractéristiques de la signature:
+                - is abstract
+                - interfaces implémentées
+                - traits utilisés, etc...
+        
+        
+        Pour tous les changements que nous pouvons détecter, nous leverons le drapeau
+        d'une incompatibilité potentielle.
+        
+    
+    
+Au niveau des properties:
+    le même problème se reproduit: on peut décrire quelles propriétés ont été 
+    supprimées/ajoutées d'une version à l'autre, mais on ne souhaite pas s'aventurer
+    dans une interprétation plus détaillée indiquant les mouvements tels que pensés par l'auteur.
+    
+    Pour les propriétés communes, on peut faire des comparaison sur les commentaires et 
+    signatures. 
+    
+    Idem, toute modification entraînera la levée du flag: potentiellement incompatible.
+    C'est un peu extrême, mais c'est sur cela que repose la "fiabilité" de notre algorithme.
+    
+    Note:
+        on pourrait avoir une approche plus cool et dire que les commentaires ne comptent pas.
+        Mais non. Nous avons décidé que les commentaires comptaient, et qu'ils soient
+        considérés comme partie intégrante de la doc.
+    
+
+Au niveau des méthodes:
+    idem pour les noms de méthodes.
+    
+    
+    Sauf l'exception suivante:
+    
+    un ajout d'argument optionnel n'entraîne pas de problème d'incompatibilité.
+    Même si ce n'est pas forcément vrai (si le code existant fait des tests sur le nombre
+    d'arguments de la méthode), cela reste peu probable que l'ajout d'un argument optionnel
+    provoque une incompatibilité de code.
+    
+    A noter que si l'ajout d'un argument optionnel est accompagné d'une modification de documentation
+    de la méthode, d'après nos règles, il y aura donc une incompatibilité potentielle.
+    
+    En fait, cette exception permet au dév d'ajouter à des méthodes intuitives (sans doc),
+    des arguments optionnels sans lever le flag d'incompatibilité potentielle.
+    Ca n'a pas l'air grand chose comme ça, mais je pense que ce cas arrivera plus souvent
+    qu'on le croit.
+    
+    
+    Bref, pour faire cela au niveau de notre algorithme, il faut couper la signature
+    de la méthode en deux:
+    
+    la partie concernant la cosmétique de la méthode:
+    
+            - public, protected, private
+            - abstract
+            - static
+            
+    de la partie liste des arguments.
+    
+    Si la partie cosmétique n'est pas modifiée, alors éventuellement, si seul
+    un argument optionnel est ajouté, alors le flag d'incompatibilité potentielle n'est
+    pas levé.
+                
+                
+                
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+
+
+
+
+
+
+
+

@@ -1,0 +1,114 @@
+Réflections
+============
+2015-04-08
+
+
+
+@2: mémo php logique:
+
+
+    http://php.net/manual/en/control-structures.intro.php
+    
+    Any PHP script is built out of a series of statements. 
+    A statement can be an assignment, a function call, a loop, a conditional statement 
+    or even a statement that does nothing (an empty statement). 
+    Statements usually end with a semicolon. In addition, statements can 
+    be grouped into a statement-group by encapsulating a group of statements with curly braces. 
+    A statement-group is a statement by itself as well. 
+    The various statement types are described in this chapter. 
+
+
+@1: 2015-04-08: Un système de regex puissant
+
+        
+        Dans ma recherche pour trouver un $arrayReferencePattern.
+        Une expression simple mais pas du tout exhaustive peut être faite comme ceci:
+        
+                $arrayReferencePattern = [
+                    'T_VARIABLE',
+                    'T_LEFT_BRACKET',
+                    '(T_VARIABLE | T_CONSTANT_ENCAPSED_STRING | T_LNUMBER | T_DNUMBER )',
+                    'T_RIGHT_BRACKET',
+                ];        
+        
+        L'inconvénient est qu'il y a de nombreux cas particuliers qui ne sont pas pris en compte,
+        notamment la récursivité.
+        En php, il est possible d'écrire une array reference de plusieurs manières:
+        
+            - $a["hi"]
+            - $a[5]
+            - $a[$o]
+            - $a[$o["pou"]]
+            - $a[$o["pou"] . $o["ll"]]
+            - $a[$o["pou"] + 5 - 4]
+            - $a[$o["pou" . "78" . $p[8- $ll["ss"]] + 5 - 4]
+            - ...
+            
+            
+        J'ai donc regardé du côté des masques récursifs en php, mais cela me semblait compliqué.
+        Il y a probablement une solution avec les masques récursifs php?
+        
+        Comme je n'y arrivais pas, j'ai imaginé le système suivant:
+        
+            $arrayReferencePattern = [
+                'T_VARIABLE',
+                'T_LEFT_BRACKET',
+                'X_CUT->T_RIGHT_BRACKET:IGNORE_BRACES',
+                'T_RIGHT_BRACKET',
+            ];        
+            
+        qui, dans mon esprit, couperait le travail en non pas une regex, mais 2.
+        En gros, une pause dans la regex, pour faire une recherche, puis reprendre la suite de la regex.
+        Donc première regex:
+                'T_VARIABLE',
+                'T_LEFT_BRACKET',
+        Puis, une vérification qui avance jusqu'au prochain ] non nesté, puis deuxième regex:                       
+                'T_RIGHT_BRACKET',
+                        
+        Malheureusement, je crains que ceci se mélange mal avec le système de regex.
+        Donc finalement, voici mon idée pour un système qui permettrait de parser les array references:
+        
+        
+        - créer le tag array reference au moment du parsage des tokens,
+            de manière à ce qu'il apparaisse comme un simple token, par exemple:
+                        T_ARRAY_REFERENCE.
+            Dans cette optique, on aurait donc un parser qui aurait des capabilities, et qui serait
+            capable de préparser les tokens. Bref, vous voyez l'idée.
+            
+            Attention, si on préparse les tokens, les tokens originaux ne sont plus disponibles,
+            donc le préparsage est en qq sorte lié à une session de match.
+            
+            En gros, on doit pouvoir utiliser match ET choisir le préparseur adapté pour le match en même temps.
+            Bien que pas parfait, ce système a l'avantage de nous permettre de switcher rapidement entre
+            2 modes de recherche complémentaires, ce qui permet probablement de faire pas mal de choses?
+            
+            Note: les tokens customs pourraient commencer par X_
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+                        
+                        
+                        
+        
+        
+                                        
+                                        
+                                        
+                        

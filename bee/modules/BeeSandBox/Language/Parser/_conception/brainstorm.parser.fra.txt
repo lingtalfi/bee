@@ -1,0 +1,491 @@
+Brainstorm
+====================
+2015-06-27
+
+
+
+
+Les languages peuvent être des bêtes très compliquées, on doit donc les décomposer en plusieurs composants.
+
+Image générale
+
+    On a un reader qui lit une input et qui construit l'intermediate representation (IR).
+    Un générateur créé une output basée sur:
+                - l'IR 
+                - ce que l'application a appris pendant les stages intermédiaires
+
+    Le composant "analyseur sémantique" désigne les stages intermédiaires,
+    il détermine le sens des symboles (contrairement au reader qui ne s'occupe que de la syntaxe).                     
+
+    
+    En général, on a besoin d'un IR car on veut faire plusieurs passes sur l'input.
+                        
+                    
+                
+Patterns:
+                
+    Pour les reader:
+                    
+    1. Mapping Grammars to Recursive-Descent Recognizers    (p45)               
+    2. LL(1) Recursive-Descent Lexer                        (p50)
+    3. LL(1) Recursive-Descent Parser                       (p54)
+    4. LL(k) Recursive-Descent Parser                       (p59)
+    5. Backtracking Parser                                  (p71)
+    6. Memoizing Parser                                     (p78)
+    7. Predicated Parser                                    (p84)
+    
+    Pour l'IR:
+    
+    8. Parse Tree                                           (p105)
+    9. Homogeneous AST                                      (p109)
+    10. Normalized Heterogeneous AST                        (p111)
+    11. Irregular Heterogeneous AST                         (p114)
+    
+    Walking IR:
+    
+    12. Embedded Heterogeneous Tree Walker                  (p128)
+    13. External Tree Visitor                               (p131)
+    14. Tree Grammar                                        (p134)
+    15. Tree Pattern Matcher                                (p138)
+    
+    Analyse de l'input
+    
+    16. Symbol Table for Monolithic Scope                   (p156)
+    17. Symbol Table for Nested Scopes                      (p161)
+    18. Symbol Table for Data Aggregates                    (p176)
+    19. Symbol Table for Classes                            (p182)
+    
+    Autres
+    20. Computing Static Expression Types                   (p199)
+    21. Automatic Type Promotion                            (p206)
+    22. Enforcing Static Type Safety                        (p216)
+    23. Enforcing Polymorphic Type Safety                   (p223)
+    
+    Interpreting Input Sentences
+    
+    24. Syntax-Directed Interpreter                         (p238)
+    25. Tree-Based Interpreter                              (p243)
+    27. Stack-Based Bytecode Interpreter
+    28. Register-Based Bytecode Interpreter
+    
+    Translating One Language to Another
+    
+    29. Syntax-Directed Translator
+    
+    
+4 types de règles de scope répandues pour les languages (p25):
+
+- single scope        
+- nested scope        
+- C-style struct scope        
+- class scope        
+    
+    
+   
+Un peu de vocabulaire, en contexte
+    
+p35:
+    Le parser est essentiel pour analyser la syntaxe.
+    La table des symboles est essentielle pour comprendre la sémantique (sens) de l'input.           
+p40:
+    Un parser vérifie qu'une phrase (sentence) est conforme à la syntaxe d'un language.
+    Un language n'est qu'un jeu de phrases valides.
+
+
+Grammar p42
+    Substructures in the parse tree and functions in the parser correspond to rules 
+    in a grammar.
+    
+p50    
+    Lexers derive a stream of tokens from a character stream by recognizing
+    lexical patterns.    
+    
+p72
+    Syntactic predicates are grammar frag- ments that specify the lookahead language predicting an alternative.
+    
+    
+    
+    
+Tokenizing Sequences p43
+    Analogie du code morse:
+    on est obligé de lire la séquence de dashes et points dans l'ordre
+    afin de trouver les lettres qui forment les mots.
+    Une fois qu'on a les mots, on peut appliquer la structure de la grammaire 
+    du language sur ces mots.
+
+
+    Les phrases ont une structure.
+    De la même manière, chaque token a sa propre structure.
+    Au niveau du caractère, on parle de structure lexicale.
+    
+    ANTLR utilise les règles suivantes:
+        - les règles syntactiques ne commencent pas par une majuscule.
+        - les règles lexicales commencent par une majuscule.
+        
+        
+        Cet exemple montre comment les règles lexicales et syntactiques peuvent interagir ensemble:
+        
+        expr    :   ID '+' Number
+                |   ID '<' Number
+                |   Number
+                ;
+                
+        Number  :   '0'..'9'+ ;             
+        ID      :   ('a'..'z'|'A'..'Z')+ ;             
+                         
+        
+    La représentation parse tree permet de deviner distinguer les tokens (qui sont les leaves du tree),
+    et les noms de règles (qui sont les noeuds intérieur du parse tree).
+    Exemple de parse tree 2.1p45
+
+    Exemple de grammaire avec récursion, style ANTLR:
+    
+    grammar NestedNameList;
+    list : '[' elements ']' ; // match bracketed list
+    elements : element (',' element)* ; // match comma-separated list 
+    element : NAME | list ; // element is name or nested list 
+    NAME : ('a'..'z' |'A'..'Z' )+ ; // NAME is sequence of >=1 letter
+
+
+
+Organisation du livre
+
+    Pattern pour lire l'input (part I)
+    Pattern pour analyser l'input (II)
+    Pattern pour interpréter l'input (III)
+    Pattern pour générer l'output (IV)
+
+
+
+
+Implémentation d'un parser: p46
+    
+    On utilise un grammaire G.
+    
+    - créer une class parser
+    - créer une méthode par règle de grammaire, et portant le nom de la règle
+    - la méthode match(x) consume un token si T est le token lookahead courant.
+            En cas de mismatch, match() lance une exception.
+    - pour chaque token T on créé une constante qui indique son type (un int)
+            On utiliser probablement ces tokens:
+                    INVALID_TOKEN_TYPE = 0;
+                    EOF = -1;
+                    
+    # conversion des subrules
+        Les alternatives dans les règles deviennent des switch/if-else                        
+            
+                    
+        Exemple pour une subrule générale:
+                            
+            if ( «lookahead-predicts-alt1» ) { «match-alt1» }
+            else if ( «lookahead-predicts-alt2» ) { «match-alt2» }
+            ...
+            else if ( «lookahead-predicts-altN» ) { «match-altN» }
+            else «throw-exception» // parse error (no viable alternative)                            
+
+        ou, si on sait qu'on ne teste qu'un seul caractère de lookahead, on peut
+        utiliser un switch:
+        
+            switch ( «lookahead-token» ) {
+                case «token1-predicting-alt1» :
+                case «token2-predicting-alt1» : 
+                    ...
+                    «match-alt1 »
+                break;
+                case «token1-predicting-alt2» :
+                case «token2-predicting-alt2» : 
+                    ...
+                    «match-alt2 »
+                break; 
+                default : «throw-exception»
+            }        
+
+    # converting subrule operators
+            
+            Pour les règles optionnelles, simplement retirer l'erreur par défaut.
+
+            optional T(?):
+                if ( «lookahead-is-T» ) { match(T); } // no error else clause
+            one_or_more (...)+:
+                do {
+                    «code-matching-alternatives»
+                } while ( «lookahead-predicts-an-alt-of-subrule» );
+            zero_or_more (...)*:
+                while ( «lookahead-predicts-an-alt-of-subrule» ) { «code-matching-alternatives»
+                }
+
+
+#----------------------------------------
+# LL(1) Recursive-Descent Lexer
+#----------------------------------------
+
+p50
+Lexers also typically deal with whitespace and comments. 
+Because the parser ignores these, we don’t bother defining token types for them.
+
+On créé une méthode par règle lexicale.
+
+To make the lexer look like an enumeration of tokens,
+it’s handy to define a method called nextToken( ).
+nextToken( ) uses the lookahead char - acter (character under the input cursor) to route control 
+flow to the appropriate recognition method. 
+
+Here is the core of a typical lexer nextToken() that skips whitespace and comments:
+
+     public Token nextToken() {
+        while ( «lookahead-char»!=EOF ) { // EOF==-1 per java.io
+            if ( «comment-start-sequence» ) { COMMENT(); continue; } ... // other skip tokens
+            switch ( «lookahead-char» ) { // which token approaches?
+                case «whitespace» : { consume(); continue; } // skip case «chars-predicting-T1» : return T1(); // match T1 case «chars-predicting-T2» : return T2();
+                ...
+                case «chars-predicting-Tn» : return Tn();
+                default : «error» }
+        }
+        return «EOF-token»; // return token with EOF_TYPE token type }
+
+
+Voici le workflow:
+
+    MyLexer lexer = new MyLexer("«input-sentence»"); // create lexer 
+    MyParser parser = new MyParser(lexer); // create parser 
+    parser.«start_rule»(); // begin parsing, looking for a list sentence
+
+
+Implémentation:
+
+public class Test {
+    public static void main(String[] args) {
+        ListLexer lexer = new ListLexer(args[0]);
+        Token t = lexer.nextToken();
+        while ( t.type != Lexer.EOF_TYPE ) {
+            System.out.println(t);
+            t = lexer.nextToken();
+        }
+        System.out.println(t); // EOF
+    }
+}
+
+
+
+
+$ java Test '[a, b ]' 
+<'[',LBRACK> 
+<'a',NAME>
+<',',COMMA>
+<'b',NAME>
+<']',RBRACK>
+<'<EOF>',<EOF>>
+$
+
+
+#----------------------------------------
+# LL(1) Recursive-Descent Parser
+#----------------------------------------
+Analyse la structure syntactique.
+This pattern shows how to implement parsing decisions that use a single token of lookahead.
+
+Le lookahead set est une notion réutilisée dans le contexte du ll(1) recursive-descent parser.
+Notamment pour savoir si le parser est de type deterministic ou non-deterministic, voir plus bas.
+Voici qq exemples pour comprendre ce que c'est:
+
+
+    stat: 'if' ... // lookahead set is {if}
+        | 'while' ... // lookahead set is {while} 
+        | 'for' ... // lookahead set is {for}
+        ;
+    
+    body_element
+        : stat // lookahead set is {if, while, for} 
+        | LABEL ':' // lookahead set is {LABEL}
+        ;
+        
+    The lookahead set for the first alternative is the union of the lookahead sets from stat.
+    Lookahead computations only get complicated when we consider empty alternatives. p56
+
+
+Le parser est deterministic si les lookahead sets ne s'overlappent pas.
+(the sets have no tokens in common).
+    
+    expr: '-'? (INT|FLOAT) // '-', INT, or FLOAT predicts this alternative
+        | ID               // ID predicts this alternative
+        ;
+    
+Voici un exemple de règles non-deterministic:
+    
+    expr: ID '++' // match "x++" 
+        | ID '--' // match "x--" 
+        ;
+    
+The token beyond dictates which alternative phrase is approaching. 
+In other words, expr is LL(2). An LL(1) parser can’t see past the left common prefix 
+with only one symbol of lookahead.
+
+Pour résoudre ce problème, on peut utiliser un parser LL(k), ou bien trouver des astuces modifiant la grammaire,
+comme par exemple:
+
+By left-factoring out the common ID left-prefix, we get an LL(1) grammar that matches the same language:
+    
+    expr: ID ('++'|'--') ; // match "x++" or "x--"
+    
+    
+
+
+
+Parsing with arbitrary lookahead
+
+    p67
+    
+    Using a syntactic predicate in an ANTLR grammar to invoke backtracking within a specific rule, we’d say this:
+    stat: (declaration)=> declaration // if it looks like declaration, it is
+        | expression                  // else it's an expression
+        ;
+    
+    
+    
+3.3 Directing the Parse with Semantic Information   p68
+
+    To handle context- sensitive phrases with a context-free parser, we have to predicate alternatives.
+     The following rule is an idealized representation of a C++ expression rule:
+     
+        expr: INTEGER // integer literal
+            | ID '(' expr ')' // function call; AMBIGUOUS WITH NEXT ALT 
+            | ID '(' expr ')' // constructor-style typecast
+            ;
+            
+    Ambiguous grammars lead to nondeterministic parsers, parsers that cannot determine which path to take.     
+    
+    By introducing two method calls within the parsing decision itself, we can disambiguate the alternatives:
+    
+        void expr() {
+            if ( LA(1)==INTEGER) match(INTEGER);
+            else if ( LA(1)==ID && isFunction(LT(1).text) ) «match-function-call» 
+            else if ( LA(1)==ID && isType(LT(1).text) ) «match-typecast»
+            else «error»
+        }
+
+
+
+
+
+
+#----------------------------------------
+# Backtracking parser
+#----------------------------------------
+
+
+    grammar NameListWithParallelAssign;
+    options {backtrack=true;}
+    // START: parser
+    stat     : list EOF | assign EOF ;
+    assign   : list '=' list ;
+    list     : '[' elements ']' ;        // match bracketed list
+    elements : element (',' element)* ;  // match comma-separated list
+    element  : NAME '=' NAME | NAME | list ; //element is name, nested list
+    // END: parser
+    
+    NAME     : LETTER+ ;                 // name is sequence of >=1 letter
+    fragment
+    LETTER   : 'a'..'z'|'A'..'Z';        // define what a letter is (\w)
+    WS       : (' '|'\t'|'\n'|'\r')+ {skip();} ; // throw out whitespace
+
+
+
+#----------------------------------------
+# Building Intermediate FormTrees
+#----------------------------------------
+Patterns pour:
+    - check phrase syntax
+    - analyze input phrases
+    
+    
+Only the simplest language applications get away with reading input and 
+directly generating output. Such applications are called 
+syntax-directed applications because they can generate output as soon as 
+they recognize a construct.
+    
+    
+p89    
+ASTs hold the key tokens from the input stream and record grammatical relationships discovered during the parse.    
+
+There are two general kinds of trees: parse trees and abstract syntax trees.
+
+Parse trees record the sequence of rules a parser applies as well as the tokens it matches. 
+Interior parse tree nodes represent rule applications, and leaf nodes represent token matches.
+Parsers don’t normally create parse trees, though. Instead, recursive- descent rule method 
+invocations simply trace out the parse tree during the parse.
+
+
+walking AST is much faster than walking the parse tree.
+
+
+How ASTs Encode Operator Precedence  (p93)
+    To encode “x happens before y,” we make x lower than y in the tree.
+
+
+Representing Trees in Text  (p94)
+        
+    add(3, mul(4,5)); // 3+4*5
+    mul(add(3,4), 5); // (3+4)*5
+    
+    
+    (+ 3 (* 4 5))    // 3+4*5
+    (* (+ 3 4) 5)    // (3+4)*5
+    
+    Notation (a b c) means a is the root with children b and c.
+
+
+Representing Pseudo-operations in ASTs  (p95)
+
+
+    node "car" [shape=ellipse, fontsize=14]
+
+    In some cases, there is no reasonable input token to use as a subtree root. We must invent an imaginary token,
+    a token for which there is no corresponding input token.
+    For example, variable declarations in languages derived from C usually need an imaginary token.
+    The AST for int i; would have VARDECL at the root and int and i as children.
+
+
+Constructing ASTs with ANTLR Grammars  (p101)
+
+    Exemple de construction de AST pour un mini-language vectoriel, dont voici qq exemples:
+
+    x = 1+2
+    y = 1*2+3
+    z = [1, 2] + [3, 4]
+    a = [1, 2] . [3, 4]
+    b = 3 * [1, 2]
+    print x+2
+
+
+
+    grammar VecMath;
+    
+    // START: stat
+    statlist : stat+ ;    // match multiple statements
+    stat: ID '=' expr     // match an assignment like "x=3+4"
+        | 'print' expr    // match a print statement like "print 4"
+        ;
+    // END: stat
+    
+    // START: expr
+    expr:   multExpr ('+' multExpr)* ;       // E.g., "3*4 + 9"
+    multExpr: primary (('*'|'.') primary)* ; // E.g., "3*4"
+    primary
+        :   INT                              // any integer
+        |   ID                               // any variable name
+        |   '[' expr (',' expr)* ']'        // vector literal; E.g. "[1,2,3]"
+        ;
+    // END: expr
+    
+    ID  :   'a'..'z'+ ;
+    INT :   '0'..'9'+ ;
+    WS  :   (' '|'\r'|'\n')+ {skip();} ;
+
+
+
+
+
+
+Source:
+    Language implementation pattern
+    

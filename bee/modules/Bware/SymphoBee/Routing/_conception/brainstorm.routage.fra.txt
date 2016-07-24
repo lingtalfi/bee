@@ -1,0 +1,31 @@
+Brainstorm
+===================
+2015-06-01
+
+
+
+
+
+Dans l'écosystème symphoBee, le routage est un système permettant de trouver une route par rapport à une HttpRequest donnée.
+
+Une route est un objet contenant:
+
+- un Controller
+- les arguments du Controller
+- des informations de contexte
+
+
+
+Le Controller peut être un callable ou bien un objet Controller.
+Le système de routage peut s'utiliser seul, mais en général on l'utilisera au sein d'un WebKernel, car ce dernier
+effectue pas mal de petites optimisations qui simplifient le développement et nous permettent de nous focuser sur les choses intéressantes.
+ 
+ 
+ 
+ 
+Router
+    Route|false   match ( HttpRequest )
+    
+            C'est une pratique commune que de mettre une route par défaut, de manière à ce que la méthode match ne retourne jamais false.     
+     
+

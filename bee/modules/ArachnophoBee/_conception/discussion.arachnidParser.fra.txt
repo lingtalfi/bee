@@ -1,0 +1,45 @@
+Discussion
+============
+2015-04-12
+
+
+
+
+Un "hacker" pourrait utiliser différents types de variables pour crypter un fichier.
+
+
+Variables assignment:
+        
+        - alphabet de caractères
+        - alphabet de fonctions
+        
+        
+Note personnelle:
+    le truc marrant, c'est que je viens de me rendre compte que le fichier que j'essaie de décrypter depuis le début,
+    c'est à dire celui qui est à l'origine de la création du package ArachnophoBee,
+    est en fait inoffensif seul, car il appelle en gros une fonction indéfinie dès les premières lignes,
+    ce qui fait planter tout le script.
+        Serait-ce pour espérer afficher un message d'erreur ?
+        Ou bien peut être que ce fichier est utilisé conjointement avec d'autres ?
+        
+    Quoiqu'il en soit, je n'ai plus de raison de développer le arachnid Parser pour l'instant.
+    Celui qui veut décrypter les fichiers peut prendre en considération ma note ci-dessus 
+    
+    (
+        alphabet de fonctions,
+        qui sous-entend qu'on fera un rechercher/remplacer sur une token regex ressemblant à:
+    
+            T_VARIABLE
+            T_LEFT_BRACKET
+            ( T_CONSTANT_ENCAPSED_STRING | T_LNUMBER )
+            T_RiGHT_BRACKET
+            T_WHITESPACE?
+            T_LEFT_PARENTHESIS        
+    
+        , ou bien on utilisera le token finder peut être ?
+    )
+    
+    
+    et continuer le développement là où je me suis arrêté.
+    
+           

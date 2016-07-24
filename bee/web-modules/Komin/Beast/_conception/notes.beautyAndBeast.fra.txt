@@ -1,0 +1,16 @@
+Notes
+===============
+2015-06-03
+
+
+
+
+Pourquoi ça ?  (faq)
+-------------------
+
+- Les fichiers de test utilisent par défaut l'extension .bst et pas .php ?
+
+        Car il est probable que les tests appellent à un moment donné des fichiers php,
+        et moins probable que les tests appellent des fichiers bst.
+        Cela permet à Beauty de faire un meilleur filtrage.
+        Cela évoluera peut être.

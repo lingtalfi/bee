@@ -1,0 +1,185 @@
+Brainstorm
+==================
+2015-05-19
+
+
+
+
+
+Grunge est une notation qui permet d'écrire des stepDriven program de manière intuitive.
+
+
+
+
+
+Design
+----------
+
+Il y a un GrungeDriver, qui est responsable de créer un GrungeStepProcessor (StepProcessor est l'objet principal du StepDrivenProgram)
+à partir d'un fichier de configuration babyYaml.
+
+
+
+
+En interne, le GrungeDriver effectue plusieurs sous-tâches:
+
+- transformation du fichier babyYaml en tableau 
+- conversion des éléments du tableau en Steps et injection des Steps dans le GrungeStepProcessor
+- création du resolver et injection dans le GrungeStepProcessor
+- création et retour du GrungeStepProcessor
+
+
+
+Il y a un objet nommé Resolver dont le but est d'interpréter la notation grunge en temps réel.
+Cet objet sera utilisé par le StepProcessor renvoyé par le GrungeDriver, de manière à ce qu'il puisse interpréter les head, tail et goto.
+
+Il sera également utilisé par le GrungeDriver, car c'est le GrungeDriver qui créé les actions, qui sont en fait des callbacks.
+Ces callbacks, ceux créés par le GrungeDriver uniquement (puisque seule la notation grunge permet de telles possibilités),
+doivent également avoir la possibilité d'interpréter des données en temps réel, nous utiliserons donc le mécanisme de passement des variables
+à un callback (use) pour passer le resolver aux actions créées par la notation grunge, tout en n'affectant pas le design général du StepProcessor.
+
+
+Puis, il y a un StepAppearanceDecorator;
+cet objet permet de choisir les préférences visuelles d'affichage d'un step à l'écran.
+Plutôt que d'écrire explicitement tous les retours à la ligne au niveau du fichier de conf,
+on peut utiliser le StepAppearanceDecorator pour qu'il applique un formattage type sur
+les différents éléments du step.
+
+
+
+
+
+Mécanisme du GrungeDriver
+-----------------------------
+
+Le GrungeDriver:
+
+### Transformation du fichier babyYaml en tableau
+
+- convertit les notations courtes en notations longues
+- expande les notations goto trouvées dans les éléments suivants:
+            - head
+            - input
+            - dialog.bool.y ou n 
+            - dialog.switch.values de type string  
+            - dialog.response.item de type string
+              
+
+### Conversion des éléments du tableau en Steps pour le StepProcessor              
+
+- créé les callbacks déclarés par la notation, en leur passant, via use, le stepResolver
+
+
+
+
+Représentation d'un step par le GrungeDriver
+-----------------------------------------------
+
+De manière interne, le GrungeDriver utilise un tableau avec les entrées suivantes:
+
+- ?head: TEXT
+- ?actions:
+
+----- input: 
+--------- text: TEXT 
+--------- ?actions: TAGS 
+--------- ?goto: string
+
+----- (OR)
+----- question: string
+----- response:
+--------- $index:
+------------- text: TEXT  
+------------- ?actions: TAGS
+------------- ?goto: string
+
+----- (OR)
+----- boolean: string
+----- yes:
+--------- text: TEXT  
+--------- ?actions: TAGS
+--------- ?goto: string
+----- no:
+--------- text: TEXT  
+--------- ?actions: TAGS
+--------- ?goto: string
+
+
+----- (FINALLY)
+----- ?execute: string|array, callbacks (en notation aerobee) à exécuter avant les dialogues
+----- ?default: string
+----- ?storeAs: string
+
+
+- ?tail: TEXT
+- ?goto: string
+
+
+
+
+TEXT: indique que le texte accepte notation goto, qui permet d'écrire les valeurs pour les propriétés
+        text et goto ensemble.
+TAGS: un tag, ou tableau de tags
+
+Documentation:
+    - pour tous les éléments, la réponse de l'utilisateur est renvoyée brute (à l'exception
+                du modificateur default qui peut modifier la valeur à la volée, voir plus bas). 
+                Autrement dit, elle n'est pas résolue avec le notationResolver.
+    
+    - pour la valeur default (section FINALLY), si définie, remplace la réponse
+                de l'utilisateur lors d'un dialogue lorsque celle-ci est la chaîne vide.
+                
+    - le tail est affiché uniquement après que les actions (s'il y en a) soient exécutées
+    - pour les booléens:
+            - la valeur storeAs (si utilisée) est un booléen php 
+            - la valeur default, si utilisée, peut être y, n, yes ou no 
+    - le storeAs fonctionne pour les dialogues, ainsi qu'avec la propriété execute,
+                    mais ne stocke qu'une valeur.
+                    Ainsi, si plusieurs callbacks sont exécutés, c'est la valeur de retour
+                    du dernier qui sera stockée dans storeAs.
+                    
+                
+        
+
+    
+Constatations:
+    les actions permettent de modifier le step/environnement courant via le code,
+    alors que la notation abrégée goto, et les propriétés storeAs et default 
+    permettent d'influencer le code depuis la config.
+    
+      
+      
+      
+Création du resolver
+----------------------------
+      
+Une des tâches du grunge driver est de créer le resolver.
+Pour ce faire, il utilisera les différentes sections du fichier de conf:
+      
+- ?parameters      
+        Ce sont les paramètres de l'application.
+        Ils sont injectés dans le resolver.
+        
+- ?services (hot container)
+        Un service container créé à la volée.
+        Ce container utilise les parameters.
+        
+- steps:
+        Chaque step est un tableau représentant un step.
+        La notation utilisée est la notation grunge décrite plus haut.
+      
+      
+      
+Grunge environment
+----------------------
+      
+Le grungeEnvironment permet d'accéder aux paramètres de la section parameters du fichier de config.
+Pour cela, on préfixe l'addresse du paramètre avec "p:".
+La notation bdot est ensuite utilisée.
+Par exemple:
+
+    - p:dstDit
+    - p:defaults.width
+
+      
+      

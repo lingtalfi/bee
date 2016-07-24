@@ -1,0 +1,58 @@
+Brainstorm
+=================
+2015-06-01
+
+
+
+
+
+
+L'objet HttpRequest est créé du besoin de contrôler le routage d'une application via des objets
+dans une application web.
+
+En effet, dès lors qu'on veut utiliser des objets pour organiser le code de l'application, la première chose à faire
+est de savoir quelle est l'url passée par l'utilisateur, et à partir de là trouver l'action à effectuer.
+
+Par extension, hormis l'url, on a d'autres informations qui peuvent servir au routage, par exemple 
+si on a une variable POST[action] on exécutera X, sinon, Y.
+
+
+
+
+Ainsi, dans notre conception, HttpRequest est avant tout une modélisation d'une requête http contenant les paramètres
+nécessaires permettant de mettre en place un routage souple dans une application web.
+
+
+C'est à dire qu'on ne cherche pas du tout à être compliant avec des rfc par exemple.
+
+
+
+
+
+# todo: 
+Comment on passe les variables 
+	nonGreedy ET boo dans le même array, premier argument ?
+
+Est-ce vraiment intéressant de pouvoir brancher les arguments
+au controlleur ?
+	oui, cela peut éviter au dév de faire des if de vérification.
+	Sémantiquement, c'est plus intéressant, le controller 
+	est spécialisé.
+
+Contexte: tableau dans lequel les arguments du controlleur sont piochés.
+
+Plutôt, le premier argument du controlleur est la requête ?
+Cela  nous permet d'accéder à tous les super tableaux facilement ?
+
+Peut être créer un tableau context: qui prendrait par défaut les variables créées depuis l'uri.
+
+Comment passer le container comme argument, est-ce intéressant ?
+	Sachant que le routeur n'a pas à la base la notion de container.
+
+
+
+
+
+
+
+

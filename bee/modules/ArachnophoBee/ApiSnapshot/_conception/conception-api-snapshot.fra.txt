@@ -1,0 +1,99 @@
+Conception
+===============
+2015-04-30
+
+
+
+
+
+Api Snapshot 
+--------------------------------------------
+
+ApiSnapshot est une manière de photographier une api à un instant t.
+La cible de la photo est un dossier qui contient plusieurs classes qui doivent être conformes à la convention sdp0,
+et le résultat est un tableau php nommé apiSnapshot qui ressemble à cela:
+                            
+                                        
+                                        
+                                                                                
+                                                                                
+(<apiSnapshot>):
+- classes: (tableau dont les clés sont triées par ordre alphabétique croissant)                                                                
+----- $resolvedClassName: 
+--------- comments: string, les commentaires de la classe, ou empty string par défaut                                                                                                                                                    
+--------- signature: <classSnapshotSignature>                                                                                                                                                    
+--------- dependencies: tableau contenant les nom résolus des classes (mots clé use en-dessous du namespace) situées à l'extérieur 
+                                            du namespace du module et classés alphabétiquement
+--------- properties: (tableau dont les clés sont triées par ordre alphabétique croissant)
+------------- $propName:                                                                                           
+----------------- comments: commentaires de la méthode                                                                                        
+----------------- signature: <propertySnapshotSignature>
+                                                                                                                                   
+--------- methods: (tableau dont les clés sont triées par ordre alphabétique croissant)                                                                                          
+------------- $methodName:                                                                                           
+----------------- comments: commentaires de la méthode                                                                                        
+----------------- signature: <methodSnapshotSignature>                                                                                        
+----------------- parameters: (tableau des paramètres, triés dans l'ordre de leur apparition dans la signature de la méthode)
+--------------------- $paramName:  (voir note sur paramName plus bas) 
+-------------------------- name: string, nom de la variable (avec le dollar devant)
+-------------------------- hint: mixed|null, la valeur du hint (array, ou le nom de la classe résolu) ou null si non défini
+-------------------------- hasDefaultValue: bool
+-------------------------- reference: bool
+-------------------------- variadic: bool
+-------------------------- defaultValue: mixed|null, la valeur par défaut si définie, null si non définie                                                                                               
+-------------------------- position: int
+                                        
+                                        
+Note sur paramName:
+    En php il est apparemment possible d'utiliser plusieurs fois le même nom de paramètre dans une méthode.
+    Cependant, dans notre implémentation, nous avons fait comme si ce n'était pas le cas (pour des raisons pratiques).
+    Ainsi, le système apiSnapshot fonctionnera de manière imprévisible pour chaque méthode qui comporte 
+    deux paramètres (au moins) ayant le même nom.
+    
+                
+                
+- classSnapshotSignature: <classPrefix> <className> <parents>? <interfaces>? <traits>?
+
+
+- classPrefix: (<abstract> <space>)? (<visibility> <space>)?
+- abstract: abstract
+- space: un espace
+- static: static
+- visibility: public|protected|private
+- className: le nom de la classe résolu
+- parents: <space> <extends> <space> <parentsList>
+- extends: extends 
+- parentsList: liste des noms de classe résolus des parents, séparés par des <virgule espace> (en fait en php il n'y a qu'un parent possible)
+- interfaces: <space> <implements> <space> <interfacesList>
+- implements: implements 
+- interfacesList: liste des noms résolus des interfaces utilisées par la classe, et séparés par des <virgule espace> 
+- traits: <space> <uses> <space> <traitsList>
+- uses: uses 
+- traitsList: liste des noms résolus des traits utilisés par la classe, et séparés par des <virgule espace> 
+
+
+
+
+- propertySnapshotSignature: <propertyPrefix> <propertyVar> (<space> <=> <space> <defaultValue>)?
+
+- propertyPrefix: (<visibility> <space>)? (<static> <space>)?
+- propertyVar: Le nom de la propriété, préfixé par le symbole dollar
+- defaultValue: La valeur par défaut, en mode inline:  
+                                null est représenté par null
+                                true est représenté par true
+                                false est représenté par false
+                                string est encadré par des guillemets simples
+                                array est écrite en notation avec des crochets comme en php, et sur une ligne
+
+
+                    
+                    
+- methodSnapshotSignature: <methodPrefix> <methodName> <(> <methodParameters>? <)>
+- methodPrefix: (<abstract> <space>)?  (<visibility> <space>)? (<static> <space>)?
+- methodParameters: <methodParameter> (<,> <space> <methodParameter>)* 
+- methodParameter:  <referenceSymbol>? <variadicSymbol>? <parameterName> (<space> <=> <space> <defaultValue>)?
+- referenceSymbol: &
+- variadicSymbol: ...
+- parameterName: le nom du paramètre, précédé du symbole dollar
+
+                               

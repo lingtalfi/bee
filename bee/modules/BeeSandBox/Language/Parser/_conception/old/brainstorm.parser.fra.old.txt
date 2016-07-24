@@ -1,0 +1,241 @@
+Brainstorm
+====================
+2015-06-27
+
+
+
+Création d'un parser, car séduit par l'idée de générer un parser à partir d'une notation décrivant la grammaire d'un mini language.
+En ce qui me concerne, pas de language complet en vue pour l'instant, juste des one liner, cela influencera probablement ma
+conception.
+
+
+En général, dans la littérature des parsers, l'interprétation d'un language est un processus décliné en plusieurs étapes:
+- parsage
+- construction de la représentation intermédiaire (IR)
+- actions sur l'IR
+
+Si cette approche a fait ses preuves pour les languages en général, dans le cadre simplifié d'un one liner, 
+on peut probablement optimiser les performances en créant un parser qui exécute directement les actions.
+C'est à dire qu'à moins qu'on ait réellement besoin des 3 phases, nous allons nous limiter à une phase qui fera 
+les 3 choses en même temps, et ainsi gagner quelques cycles cpu.
+
+
+
+
+
+J'ai besoin de parser:
+
+- des hybrides
+- des quotes
+- des séquences
+- des arrangements
+- des mappings
+- des fonctions
+
+
+
+Notions spécifiques à ma conception (à définir):
+
+- expression
+        C'est la string de base qu'on essaie d'interpréter.
+        Dans la littérature des parsers, le stream peut même venir d'un socket (cas particulier dans lequel on ne peut
+        pas déterminer la longueur de la string à l'avance).
+        Dans cette conception, la string est toujours finie.
+        
+        Une expression est constituée de zéro ou plus éléments assemblés en fonction d'une grammaire.
+        
+- grammaire: 
+        un ensemble de règles déterminant comment s'assemblent les éléments.
+        TODO: définir ce qu'est une règle de grammaire (sa structure?)
+        
+- symbole:
+        la grammaire est constitué d'un ensemble de symboles (tokens, dans la littérature des parsers).
+        Ces symboles sont reconnus par le parser, puis assemblés de manière à former des unités sémantiques
+        qui sont les éléments (appelés parfois lexèmes dans la litterature des parsers).
+        
+        
+- element: 
+        c'est l'élément sémantique de base d'une expression.
+        Les éléments sont constitué de un ou plusieurs symboles assemblés dans le respect des règles de la grammaire.
+                            
+        
+- container
+        Certains éléments sont appelés container.
+        Ces éléments commençent par un symbole de début et se terminent par un symbole de fin.
+        La particularité d'un container est qu'il peut contenir des éléments.
+        Un container est en général récursif, mais cela est dicté par les règles de grammaire.
+        
+        
+        Au sein d'un container, les éléments sont séparés par un symbole nommé sep.
+        
+        On peut distinguer 3 types de containers (pour l'instant, d'après mon expérience personnelle).
+        La différence entre ces types de container vient du fait que le container utilise ou pas des clés pour introduire
+        les valeurs (éléments):
+        
+            - sequence 
+                    pas de clé
+            - mapping
+                    clé obligatoire
+            - arrangement
+                    clé facultative (mélange entre sequence et arrangement)
+        
+        Si le container utilise un système de clé, alors le symbole de séparation entre la clé et la valeur 
+        est en général appelé kvSep.
+        
+        
+        
+- sep: 
+        De manière générale, sep est un séparateur permettant de séparer les éléments
+- kvSep:
+        De manière générale, kvSep est un séparateur entre une clé et une valeur.
+        Il est utilisé au sein des containers.
+
+- boundary symbol:
+        Un boundary symbole est un symbole qui permet de marquer la fin d'un élément.
+        Le système de validation d'un élément est basé sur la reconnaissance du boundary symbol
+        à la fin d'un élément.
+        
+        
+        
+- contexte:
+        Toute expression possède un contexte d'exécution appelé contexte global.
+        Les containers introduisent leur propre contexte.
+        Un élément appartient toujours a un et un seul contexte, qui est représenté par son parent direct.
+        
+        Cela signifie que si un élément E a pour parent direct un container C,
+        alors le contexte de C s'applique à E.
+        Si un élément n'a pas de parent, c'est le contexte global qui s'applique sur cet élément.
+        
+        
+        L'intérêt du contexte:
+                il permet de déterminer la validité d'un élément selon la règle suivante:
+                        
+                        - si un élément est suivi d'un boundary symbol, alors il est valide, sinon, il ne l'est pas.
+                        
+                                
+                                Cette règle permet à un parser de skipper une alternative: en général, le parser
+                                utilise plusieurs alternatives jusqu'à trouver  
+                        
+                        
+
+
+
+
+        
+
+
+
+
+
+
+- des hybrides
+- des quotes
+- des séquences
+- des arrangements
+- des mappings
+- des fonctions
+
+
+
+Notation babyYaml:
+- qs: <doubleQuotedString> | <singleQuotedString>
+- doubleQuotedString: @component: doubleQuotedString-simpleEscape        
+- singleQuotedString: @component: singleQuotedString-simpleEscape        
+- hybrid: @component: hybrid
+- sequence: <[> <csElements> <]>
+- csElements: 
+
+
+
+Notation function php:
+
+
+ALT1
+- function: @functionComponent
+- functionComponent: 
+----- primerRegex: !^[A-z_][A-z0-9_]\(!  
+
+<(> <args> <)>
+- functionName: @regex: ![]! 
+
+
+
+ALT1
+- function: <functionName> <args> 
+- functionName: @regex: 
+- args: 
+----- type: compo   # type of specialFeature, mandatory if array 
+# the following depends on specialFeature type
+----- name: arrangement   # name of the component to use
+----- args: 
+--------- beginSymbol: "("
+--------- endSymbol: ")"
+--------- recursive: true
+--------- accepts: # éléments acceptés, bof...
+ 
+
+
+Notation shortCode:
+
+
+Notation crawlerQuery:
+
+- notation: <phrase>
+- phrase: <elementSelector> ( <,> <elementSelector>) *
+- elementSelector: <atomicSelector> ( <elementOperator> <atomicSelector> )*                                                                             
+- atomicSelector: <entitySelector>? ( <elementFilters> )*                     
+
+- entitySelector: ((<classSelector> | <idSelector> | <elementName>) (<classSelector>)* ) |  <*>
+- classSelector: <dot> <entityName>                       
+- idSelector: <sharp> <entityName>                       
+- elementName: [A-z_][A-z0-9_]*
+                       
+- elementFilters: <attributePack> | <notFilter> | <containsFilter> | <containsAllFilter> | <positionFilter>
+- attributePack: <openingBracket> <attributeName> <attributePredicate>? <closingBracket>
+- attributePredicate: <attributeOperator> <attributeOperand>
+- attributeOperator: <equalOperator> | <notEqualOperator> | <containsOperator> | <startsWithOperator> | <endsWithOperator>
+- attributeOperand: <quotedString> | <entityName>
+- attributeName: <entityName>
+- elementOperator: <space> | <greaterThan> | <plus> | <tilde>                    
+- notFilter: <:not> <openingParenthesis> <notNotation> <closingParenthesis>                    
+- containsFilter: <:contains> <openingParenthesis> <text> <closingParenthesis>                    
+- containsAllFilter: <:containsAll> <openingParenthesis> <text> <closingParenthesis>
+- text: <quotedString> | <entityName>
+- positionFilter: <:first> | <:last> | <:first-child> | <:last-child> | <:first-of-type> | <:last-of-type> | <positionFunction>
+- positionFunction: <positionFunctionName> <openingParenthesis> <number> <closingParenthesis>
+- positionFunctionName: <:nth> | <:nth-child> | <nth-last-child> | <nth-of-type> | <nth-last-of-type>
+- number: [0-9]+                   
+- notNotation: comme <notation>, mais ne peut pas contenir un autre notFilter,
+                        c'est à dire que :not n'est pas récursif.
+
+
+
+
+
+Notation biscotte: ?
+Notation console grunge: ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pôles:
+    - pouvoir composer son container
+
+
+
+
+
+
+
+
+

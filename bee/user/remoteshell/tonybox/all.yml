@@ -1,0 +1,28 @@
+apps:
+    appRoot0:
+        _vars:
+            $dir: /home/ling/websites/bee/approot0
+        commandSet0:
+            links:
+                -
+                    - $dir/web/libs/php/module-grappin-functions/1.0/functions.php
+                    - $dir/web/libs/js/jquery/plugins/easy-download-counter/1.0/function/functions.php
+    lingtalfi:
+        _vars:
+            $dir: /home/ling/websites/lingtalfi/site
+            $appRoot0: /home/ling/websites/bee/approot0
+        commandSet0:
+            chmod:
+                - $dir/app/stats:0777
+                - $dir/app/log/applog.txt:0777
+
+            links:
+                -
+                    - $appRoot0/web/libs/js/jquery/plugins/easy-download-counter/1.0
+                    - $dir/web/libs/jquery/easy-download-counter/1.0
+                -
+                    - $appRoot0/web/libs/js/unsupported-browsers-popup
+                    - $dir/web/libs/unsupported-browsers-popup
+                -
+                    - $appRoot0/web/libs/js/jquery/plugins/easy-download-counter/1.0
+                    - $dir/web/sherif/edc/edc-1.0
